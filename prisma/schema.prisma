@@ -7,7 +7,6 @@
 generator client {
   provider = "prisma-client-js"
 	binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
-  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -15,116 +14,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-	id				String @id @default(uuid())
-	name			String? @db.VarChar(255)
-	email			String @unique @db.VarChar(255)
-	password		String @db.VarChar(255)
-	sessionToken	String? @db.VarChar(255) @map("session_token")
-	isAdmin			Boolean @map("is_admin")
-	createdAt		DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
-
-	@@map("user")
-}
-
-model Customer {
-	id			String @id @default(uuid())
-	name		String? @db.VarChar(255)
-	email		String? @db.VarChar(255)
-	cpf			String @unique @db.VarChar(11)
-  createdAt	DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
-
-  orders    Order[]
-	// orders    Order[] // Um Customer pode ter muitos Orders
-
-	@@map("customer")
-}
-
-model ProductCategory {
-  id        String   @id @default(uuid())
-  name      String   @db.VarChar(255) @unique
-  createdAt DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
-
-  products  Product[]
-
-  @@map("product_category")
-}
-
-model ProductImage {
-  id        String   @id @default(uuid())
-  productId String   @db.VarChar(255)
-  url       String   @db.VarChar(255) @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  product   Product  @relation(fields: [productId], references: [id])
-
-  @@map("product_image")
-}
-
-model Product {
-  id          String          @id @default(uuid())
-  categoryId  String          @db.VarChar(255)
-  name        String          @db.VarChar(255)
-  description String          @db.Text
-  value       Decimal         @db.Money
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
-
-  category    ProductCategory @relation(fields: [categoryId], references: [id])
-  images      ProductImage[]
-  orderItems  OrderItem[]
-
-  @@map("product")
-}
-
-model OrderItem {
-  id        String   @id @default(uuid())
-  orderId   String   @db.VarChar(255)
-  productId String   @db.VarChar(255)
-  quantity  Int
-  value     Decimal  @db.Money
-  details   String?  @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
-
-	// Remover a restrição de unicidade dos campos orderId e productId
-  @@unique([orderId, productId]) // Adiciona uma restrição única combinada
-
-  @@map("order_item")
-}
-
-enum OrderStatus {
-  created
-  received
-	preparation
-	ready
-	finished
-	canceled
-}
-
-model Order {
-  id         String   @id @default(uuid())
-  readableId    String?  @db.VarChar(255)
-  customerId String?  @db.VarChar(255)
-  status     OrderStatus   @default(created)
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  customer   Customer? @relation(fields: [customerId], references: [id]) // Relacionamento opcional com Customer
-  items      OrderItem[]
-  payment    PaymentOrder? // Um Order tem um PaymentOrder
-
-  @@map("order")
-}
-
-// https://www.mercadopago.com.br/developers/pt/reference/payments/_payments_id/get
 enum PaymentOrderStatus {
 	pending
   approved
@@ -146,8 +35,6 @@ model PaymentOrder {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   value     Decimal  @db.Money
-
-  order     Order    @relation(fields: [orderId], references: [id]) // Um PaymentOrder pertence a um Order
 	
   @@map("payment_order")
 }

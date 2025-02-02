@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   postgres:
-    container_name: tech-challenger-pg
+    container_name: tech-challenge-payment-pg
     image: postgres
     ports:
-      - '5432:5432'
+      - '5439:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: docker
@@ -14,7 +12,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
-      - tech-challenger-network
+      - tech-challenge-payment-network
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
@@ -22,7 +20,7 @@ services:
       retries: 5
 
   app:
-    container_name: tech-challenger-api
+    container_name: tech-challenge-payment-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -33,30 +31,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     environment:
       DATABASE_URL: 'postgresql://postgres:docker@postgres:5432/tech-challenger'
-      REDIS_URL: ${REDIS_URL}
       API_PORT: 3333
     networks:
-      - tech-challenger-network
-
-  redis:
-    container_name: tech-challenger-redis
-    image: redis:latest
-    ports:
-      - '6379:6379'
-    networks:
-      - tech-challenger-network
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - tech-challenge-payment-network
 
 networks:
-  tech-challenger-network:
+  tech-challenge-payment-network:
     driver: bridge
 
 volumes:

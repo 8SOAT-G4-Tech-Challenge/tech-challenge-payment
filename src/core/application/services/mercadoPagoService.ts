@@ -1,26 +1,18 @@
 import axios from 'axios';
 
-import { EnvironmentService } from '@common/environmentService';
-import logger from '@common/logger';
-import { InvalidMercadoPagoException } from '@exceptions/invalidMercadoPagoException';
-import {
-	CreateQrRequest,
-	CreateQrRequestItem,
-	CreateQrResponse,
-} from '@models/mercadoPagoQr';
-import { OrderItem } from '@models/orderItem';
 import {
 	convertKeysToCamelCase,
 	convertKeysToSnakeCase,
 } from '@application/utils/caseConverterUtil';
-
-import { CartService } from './cartService';
-import { ProductService } from './productService';
+import { EnvironmentService } from '@common/environmentService';
+import logger from '@common/logger';
+import { InvalidMercadoPagoException } from '@exceptions/invalidMercadoPagoException';
+import { CreateQrRequest, CreateQrResponse } from '@models/mercadoPagoQr';
 
 export class MercadoPagoService {
-	private readonly cartService: CartService;
+	// private readonly cartService: CartService;
 
-	private readonly productService: ProductService;
+	// private readonly productService: ProductService;
 
 	private readonly baseUrl: string = 'https://api.mercadopago.com';
 
@@ -31,12 +23,12 @@ export class MercadoPagoService {
 	private readonly userId: number;
 
 	constructor(
-		cartService: CartService,
-		productService: ProductService,
+		// cartService: CartService,
+		// productService: ProductService,
 		environmentService: EnvironmentService
 	) {
-		this.cartService = cartService;
-		this.productService = productService;
+		// this.cartService = cartService;
+		// this.productService = productService;
 
 		this.token = environmentService.getMercadoPagoToken();
 		this.userId = environmentService.getMercadoPagoUserId();
@@ -49,7 +41,7 @@ export class MercadoPagoService {
 	): Promise<CreateQrResponse> {
 		logger.info('Creating QR Payment Request...');
 
-		const orderItems = await this.cartService.getAllCartItemsByOrderId(orderId);
+		/* 		const orderItems = await this.cartService.getAllCartItemsByOrderId(orderId);
 
 		const createQrRequestItems: CreateQrRequestItem[] = await Promise.all(
 			orderItems.map(async (orderItem: OrderItem) => {
@@ -65,7 +57,7 @@ export class MercadoPagoService {
 					unitPrice: product.value,
 				};
 			})
-		);
+		); */
 
 		const createQrRequest: CreateQrRequest = {
 			externalReference: orderId,
@@ -73,7 +65,8 @@ export class MercadoPagoService {
 			description: '',
 			totalAmount: value,
 			expirationDate: new Date(Date.now() + 3600000).toISOString(),
-			items: createQrRequestItems,
+			items: [],
+			// items: createQrRequestItems,
 		};
 
 		logger.info(

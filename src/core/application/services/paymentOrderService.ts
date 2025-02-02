@@ -13,31 +13,21 @@ import {
 	MakePaymentOrderParams,
 	UpdatePaymentOrderParams,
 } from '@ports/input/paymentOrders';
-import { OrderRepository } from '@ports/repository/orderRepository';
 import { PaymentOrderRepository } from '@ports/repository/paymentOrderRepository';
 
 import { UpdateOrderParams } from '../ports/input/orders';
 import { MercadoPagoService } from './mercadoPagoService';
-import { OrderService } from './orderService';
 
 export class PaymentOrderService {
 	private readonly paymentOrderRepository;
-
-	private readonly orderRepository;
-
-	private readonly orderService: OrderService;
 
 	private readonly mercadoPagoService: MercadoPagoService;
 
 	constructor(
 		paymentOrderRepository: PaymentOrderRepository,
-		orderRepository: OrderRepository,
-		orderService: OrderService,
 		mercadoPagoService: MercadoPagoService
 	) {
 		this.paymentOrderRepository = paymentOrderRepository;
-		this.orderRepository = orderRepository;
-		this.orderService = orderService;
 		this.mercadoPagoService = mercadoPagoService;
 	}
 
@@ -75,9 +65,10 @@ export class PaymentOrderService {
 	): Promise<PaymentOrder> {
 		const { orderId } = makePaymentOrderParams;
 
-		const order = await this.orderService.getOrderCreatedById({
+		/* const order = await this.orderService.getOrderCreatedById({
 			id: orderId,
-		});
+		}); */
+		const order = null;
 		if (!order) {
 			throw new InvalidPaymentOrderException(
 				`Order with id: ${orderId} not found`
@@ -92,9 +83,9 @@ export class PaymentOrderService {
 			);
 		}
 
-		const value =
-			(await this.orderService.getOrderTotalValueById(orderId)) ?? 0;
-
+		/* const value =
+			(await this.orderService.getOrderTotalValueById(orderId)) ?? 0; */
+		const value = 0;
 		const createQrResponse: CreateQrResponse =
 			await this.mercadoPagoService.createQrPaymentRequest(orderId, value);
 
@@ -165,8 +156,10 @@ export class PaymentOrderService {
 				`Payment order updated successfully: ${JSON.stringify(paymentOrder)}`
 			);
 
-			const numberOfOrdersToday =
-				await this.orderRepository.getNumberOfValidOrdersToday() ?? 0;
+			/* const numberOfOrdersToday =
+				(await this.orderService.getNumberOfValidOrdersToday()) ?? 0; */
+
+			const numberOfOrdersToday = 0;
 
 			const updateOrder: UpdateOrderParams = {
 				id: paymentOrder.orderId,
@@ -175,8 +168,8 @@ export class PaymentOrderService {
 			};
 
 			logger.info(`Updating order: ${JSON.stringify(updateOrder)}`);
-			const order = await this.orderService.updateOrder(updateOrder);
-			logger.info(`Order updated successfully: ${JSON.stringify(order)}`);
+			// const order = await this.orderService.updateOrder(updateOrder);
+			// logger.info(`Order updated successfully: ${JSON.stringify(order)}`);
 		} else {
 			throw new PaymentNotificationException(
 				`Error processing payment finish notification. Payment order ${notificationData.additional_info.external_reference} with status other than pending. Current status: ${paymentOrder.status}`
@@ -221,8 +214,8 @@ export class PaymentOrderService {
 				status: OrderStatusEnum.canceled,
 			};
 			logger.info(`Updating order: ${JSON.stringify(updateOrder)}`);
-			const order = await this.orderService.updateOrder(updateOrder);
-			logger.info(`Order updated successfully: ${JSON.stringify(order)}`);
+			// const order = await this.orderService.updateOrder(updateOrder);
+			// logger.info(`Order updated successfully: ${JSON.stringify(order)}`);
 		} else {
 			throw new PaymentNotificationException(
 				`Error processing payment cancelation notification. Payment order ${notificationData.additional_info.external_reference} with status other than pending. Current status: ${paymentOrder.status}`

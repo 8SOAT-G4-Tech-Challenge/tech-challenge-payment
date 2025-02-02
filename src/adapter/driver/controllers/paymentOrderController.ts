@@ -8,9 +8,9 @@ import {
 } from '@application/ports/input/paymentOrders';
 import logger from '@common/logger';
 import { handleError } from '@driver/errorHandler';
+import { NotificationPaymentDto } from '@driver/schemas/paymentOrderSchema';
 import { PaymentOrder } from '@models/paymentOrder';
 import { PaymentOrderService } from '@services/paymentOrderService';
-import { NotificationPaymentDto } from '@driver/schemas/paymentOrderSchema';
 
 export class PaymentOrderController {
 	private readonly paymentOrderService: PaymentOrderService;
