@@ -1,5 +1,5 @@
 {
-	"name": "tech-challenger",
+	"name": "tech-challenge-payment",
 	"version": "1.0.0",
 	"description": "API Restaurante FIAP Tech Challenge",
 	"main": "index.js",

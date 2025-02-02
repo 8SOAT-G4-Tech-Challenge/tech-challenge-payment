@@ -1,3 +1,4 @@
+import { PaymentOrderStatusEnum } from '@application/enumerations/paymentOrderEnum';
 import {
 	CreatePaymentOrderParams,
 	GetPaymentOrderByIdParams,
@@ -5,7 +6,6 @@ import {
 	UpdatePaymentOrderParams,
 } from '@application/ports/input/paymentOrders';
 import { PaymentOrderRepository } from '@application/ports/repository/paymentOrderRepository';
-import { PaymentOrderStatusEnum } from '@application/enumerations/paymentOrderEnum';
 import { prisma } from '@driven/infra/lib/prisma';
 import { PaymentOrder } from '@models/paymentOrder';
 

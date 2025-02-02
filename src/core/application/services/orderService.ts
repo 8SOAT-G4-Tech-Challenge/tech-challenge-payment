@@ -1,108 +1,36 @@
-import { OrderStatusEnum } from '@application/enumerations/orderStatusEnum';
 import logger from '@common/logger';
-import { getOrderByIdSchema, updateOrderSchema } from '@driver/schemas/orders';
 import { InvalidOrderException } from '@exceptions/invalidOrderException';
-import { InvalidOrderStatusException } from '@exceptions/invalidOrderStatusException';
 import { Order } from '@models/order';
-import {
-	GetOrderQueryParams,
-	CreateOrderParams,
-	GetOrderByIdParams,
-	UpdateOrderParams,
-} from '@ports/input/orders';
+import { GetOrderByIdParams, UpdateOrderParams } from '@ports/input/orders';
 import { CreateOrderResponse } from '@ports/output/orders';
-import { CartRepository } from '@ports/repository/cartRepository';
-import { OrderRepository } from '@ports/repository/orderRepository';
-import { OrderStatusType } from '@src/core/domain/types/orderStatusType';
 
 export class OrderService {
-	private readonly orderRepository: OrderRepository;
-
-	private readonly cartRepository: CartRepository;
-
-	constructor(
-		orderRepository: OrderRepository,
-		cartRepository: CartRepository
-	) {
-		this.orderRepository = orderRepository;
-		this.cartRepository = cartRepository;
-	}
-
-	async getOrders({ status }: GetOrderQueryParams): Promise<Order[]> {
-		if (status && Object.values(OrderStatusEnum).includes(status)) {
-			logger.info(`Searching orders by status: ${status}`);
-			const orders = await this.orderRepository.getOrdersByStatus(status);
-			return orders;
-		}
-
-		if (status && !Object.values(OrderStatusEnum).includes(status)) {
-			throw new InvalidOrderStatusException(
-				`Error listing orders by status. Invalid status: ${status}`
-			);
-		}
-
-		logger.info('Searching all orders');
-		const orders = await this.orderRepository.getOrders();
-		return this.sortOrdersByStatus(orders);
-	}
-
-	async getOrderById({ id }: GetOrderByIdParams): Promise<Order> {
-		const { success } = getOrderByIdSchema.safeParse({ id });
-
-		if (!success) {
-			throw new InvalidOrderException(
-				`Error listing order by Id. Invalid Id: ${id}`
-			);
-		}
-
-		logger.info(`Searching order by Id: ${id}`);
-		const orderFound = await this.orderRepository.getOrderById({ id });
-
-		return orderFound;
-	}
-
 	async getOrderCreatedById({ id }: GetOrderByIdParams): Promise<Order> {
-		const { success } = getOrderByIdSchema.safeParse({ id });
-
-		if (!success) {
-			throw new InvalidOrderException(
-				`Error listing order by Id. Invalid Id: ${id}`
-			);
+		if (!id) {
+			throw new InvalidOrderException('ID is required');
 		}
 
-		logger.info(`Searching order created by Id: ${id}`);
-		const orderFound = await this.orderRepository.getOrderCreatedById({ id });
+		const orderFound: Order = {
+			id,
+			status: 'created',
+			createdAt: new Date(),
+			customerId: '123',
+			updatedAt: new Date(),
+		};
 
 		return orderFound;
-	}
-
-	async createOrder(order: CreateOrderParams): Promise<CreateOrderResponse> {
-		if (order?.customerId) {
-			logger.info(`Creating order with customer: ${order?.customerId}`);
-		} else {
-			logger.info('Creating order..');
-		}
-
-		return this.orderRepository.createOrder(order);
 	}
 
 	async updateOrder(order: UpdateOrderParams): Promise<CreateOrderResponse> {
-		const { success } = updateOrderSchema.safeParse(order);
+		const updatedOrder: CreateOrderResponse = {
+			id: order.id,
+			status: order.status,
+			createdAt: new Date(),
+			customerId: '123',
+			updatedAt: new Date(),
+		};
 
-		if (!success && !order?.id) {
-			throw new InvalidOrderException(
-				"Can't update order without providing an ID"
-			);
-		}
-
-		if (!success) {
-			throw new InvalidOrderException(
-				"Can't update order without providing a valid status"
-			);
-		}
-
-		logger.info(`Updating order: ${order.id}`);
-		return this.orderRepository.updateOrder(order);
+		return updatedOrder;
 	}
 
 	async getOrderTotalValueById(id: string): Promise<number> {
@@ -112,41 +40,12 @@ export class OrderService {
 			);
 		}
 
-		const productItems = await this.cartRepository.getAllCartItemsByOrderId(id);
-
-		if (!productItems.length) {
-			throw new InvalidOrderException(
-				"Can't return order total value without order items"
-			);
-		}
-
-		const totalValue = productItems.reduce(
-			(acc, productItem) => acc + productItem.value,
-			0
-		);
-
-		logger.info(`Total value from order ${id} is ${totalValue}`);
-		return totalValue;
+		return 0;
 	}
 
-	private sortOrdersByStatus(orders: Order[]): Order[] {
-		const statusPriority: OrderStatusType[] = [
-			'ready',
-			'preparation',
-			'received',
-			'created',
-		];
-
-		const priorityMap = new Map(
-			statusPriority.map((status, index) => [status, index])
-		);
-
-		return orders.sort((a, b) => {
-			const priorityA =
-				priorityMap.get(a.status as OrderStatusType) ?? Infinity;
-			const priorityB =
-				priorityMap.get(b.status as OrderStatusType) ?? Infinity;
-			return priorityA - priorityB;
-		});
+	async getNumberOfValidOrdersToday(): Promise<number> {
+		logger.info('Getting number of valid orders today');
+		return 0;
+		// return this.orderRepository.getNumberOfValidOrdersToday();
 	}
 }
