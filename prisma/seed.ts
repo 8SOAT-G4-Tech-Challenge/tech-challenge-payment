@@ -9,7 +9,7 @@ async function main() {
 				orderId: '1234',
 				status: 'approved',
 				paidAt: new Date(),
-				value: 30,
+				value: 30.0,
 				qrData: null,
 			},
 		}),
@@ -17,7 +17,7 @@ async function main() {
 			data: {
 				orderId: '12345',
 				status: 'pending',
-				value: 20,
+				value: 20.0,
 				qrData: null,
 			},
 		}),
@@ -25,7 +25,7 @@ async function main() {
 			data: {
 				orderId: '123456',
 				status: 'pending',
-				value: 20,
+				value: 20.0,
 				qrData: null,
 			},
 		}),
