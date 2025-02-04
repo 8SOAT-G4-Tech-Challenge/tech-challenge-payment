@@ -10,22 +10,92 @@
 1.  Clone o repositório:
 
 ```sh
-  git clone https://github.com/Winderson/tech-challenger.git
-  cd tech-challenger
+  git clone https://github.com/8SOAT-G4-Tech-Challenge/tech-challenge-payment.git
+  cd tech-challenge
 ```
+
+<br>
 
 2.  Certifique-se de que os arquivos Dockerfile e docker-compose.yml estão presentes na raiz do projeto.
 
-3.  Inicie a aplicação com Docker Compose:
+<br>
+
+3. Criar um `keyfile` (pelo Windows):
+   O MongoDB exige um `keyFile` para autenticar os membros do Replica Set quando a autenticação está ativada. O Replica Set é necessário pois o Prisma exige isso para operações transacionais.
+
+- Na raiz do projeto, executar os seguintes comandos:
+
+```sh
+  $randomKey = [System.Convert]::ToBase64String((1..756 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
+  Set-Content -Path mongo-keyfile -Value $randomKey
+```
+
+Isso cria um arquivo mongo-keyfile com um conteúdo aleatório em Base64 (exigido pelo MongoDB).
+
+- Para configurar as permissões do arquivo, executar os seguintes comandos:
+
+```sh
+  icacls mongo-keyfile /inheritance:r
+  icacls mongo-keyfile /grant:r "Todos:F"
+```
+
+Isso remove permissões herdadas e concede acesso apenas ao usuário atual.
+
+<br>
+
+4.  Inicie a aplicação com Docker Compose:
 
 ```sh
   docker-compose up
 ```
 
-4.  A aplicação será iniciada e todos os serviços necessários serão configurados automaticamente.
+<br>
 
-**IMPORTANTE:**
-Esta API está programada para ser acessada a partir de `http://localhost:3333` e o banco de dados utiliza a porta `5432`.
-Certifique-se de que não existam outros recursos ocupando as portas `3333` e `5432` antes de subir o projeto.
+5.  A aplicação será iniciada.
 
-Para derrubar o serviço, execute o comando `docker-compose down`.
+<br>
+
+6. Configurar Replica Set
+
+- Acessar o container do MongoDB:
+
+```sh
+  docker exec -it tech-challenge-payment-mongo mongosh
+```
+
+- Iniciar o Replica Set:
+
+```sh
+  rs.initiate({
+    _id: "rs0",
+    members: [{ _id: 0, host: "mongodb:27017" }]
+  })
+```
+
+- Criar Usuário Administrador:
+
+```sh
+  use admin
+```
+
+```sh
+  db.createUser({
+    user: "tech-challenge",
+    pwd: "docker",
+    roles: [{ role: "root", db: "admin" }]
+  })
+```
+
+- Autenticar
+
+```sh
+  db.auth("user", "password")
+```
+
+Após realizar estas configurações, deve ser possível realizar operações no banco através da API.
+
+Para derrubar o serviço, execute o comando:
+
+```sh
+  docker compose down
+```
