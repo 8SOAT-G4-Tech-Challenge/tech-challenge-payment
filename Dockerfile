@@ -45,4 +45,4 @@ EXPOSE 3333
 EXPOSE 5555
 
 # Comando para criar banco de dados, iniciar a aplicação e o Prisma Studio
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/adapter/driver/server.js & npx prisma studio"]
+CMD ["sh", "-c", "npx prisma generate && npx prisma db push && node dist/adapter/driver/server.js & npx prisma studio"]

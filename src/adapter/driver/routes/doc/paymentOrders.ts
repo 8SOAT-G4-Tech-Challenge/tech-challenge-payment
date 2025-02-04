@@ -12,7 +12,6 @@ export const SwaggerGetPaymentOrders = {
 					properties: {
 						id: {
 							type: 'string',
-							format: 'uuid',
 						},
 						orderId: {
 							type: 'string',
@@ -74,8 +73,7 @@ export const SwaggerGetPaymentOrderById = {
 			properties: {
 				id: {
 					type: 'string',
-					format: 'uuid',
-					description: 'The ID of the payment order to retrieve',
+					description: 'The MongoDB ObjectId of the payment order to retrieve',
 				},
 			},
 			required: ['id'],
@@ -87,11 +85,11 @@ export const SwaggerGetPaymentOrderById = {
 				properties: {
 					id: {
 						type: 'string',
-						format: 'uuid',
+						description: 'MongoDB ObjectId',
 					},
 					orderId: {
 						type: 'string',
-						format: 'uuid',
+						description: 'Reference order ID',
 					},
 					status: {
 						type: 'string',
@@ -101,18 +99,18 @@ export const SwaggerGetPaymentOrderById = {
 					},
 					paidAt: {
 						type: 'string',
-						format: 'datetime',
+						format: 'date-time',
 					},
 					value: {
-						type: 'string',
+						type: 'number',
 					},
 					createdAt: {
 						type: 'string',
-						format: 'datetime',
+						format: 'date-time',
 					},
 					updatedAt: {
 						type: 'string',
-						format: 'datetime',
+						format: 'date-time',
 					},
 				},
 			},
@@ -173,7 +171,6 @@ export const SwaggerGetPaymentOrderByOrderId = {
 				properties: {
 					id: {
 						type: 'string',
-						format: 'uuid',
 					},
 					orderId: {
 						type: 'string',
@@ -260,7 +257,6 @@ export const SwaggerPaymentOrderMakePayment = {
 				properties: {
 					id: {
 						type: 'string',
-						format: 'uuid',
 					},
 					orderId: {
 						type: 'string',
