@@ -36,7 +36,6 @@
 		"fastify-type-provider-zod": "^2.0.0",
 		"http-status-codes": "^2.3.0",
 		"pino": "^9.3.2",
-		"redis": "^4.7.0",
 		"tsconfig-paths": "^4.2.0",
 		"zod": "^3.23.8"
 	},
