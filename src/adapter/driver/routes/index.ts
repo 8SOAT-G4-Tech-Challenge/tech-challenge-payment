@@ -1,8 +1,13 @@
 import { FastifyInstance } from 'fastify';
 
-import { MercadoPagoService, PaymentOrderService } from '@application/services';
+import {
+	MercadoPagoService,
+	OrderService,
+	PaymentOrderService,
+} from '@application/services';
+import { MercadoPagoHttpClient } from '@src/adapter/driven/http/mercadoPagoHttpClient';
+import { OrderHttpClient } from '@src/adapter/driven/http/orderHttpClient';
 import { PaymentOrderRepositoryImpl } from '@src/adapter/driven/infra/paymentOrderRepositoryImpl';
-import { EnvironmentService } from '@src/core/common/environmentService';
 
 import { PaymentOrderController } from '../controllers/paymentOrderController';
 import {
@@ -13,42 +18,59 @@ import {
 	SwaggerPaymentOrderProcessPaymentNotifications,
 } from './doc/paymentOrders';
 
+const mercadoPagoHttpClient = new MercadoPagoHttpClient(
+	process.env.MERCADO_PAGO_BASE_URL ?? '',
+	process.env.MERCADO_PAGO_TOKEN ?? '',
+	Number(process.env.MERCADO_PAGO_USER_ID),
+	process.env.MERCADO_PAGO_EXTERNAL_POS_ID ?? ''
+);
+
+const orderHttpClient = new OrderHttpClient(process.env.CART_BASE_URL ?? '');
+
 const paymentOrderRepository = new PaymentOrderRepositoryImpl();
 
-const environmentService = new EnvironmentService();
+const orderService = new OrderService(orderHttpClient);
 
-const mercadoPagoService = new MercadoPagoService(environmentService);
+const mercadoPagoService = new MercadoPagoService(
+	orderService,
+	mercadoPagoHttpClient
+);
 
 const paymentOrderService = new PaymentOrderService(
 	paymentOrderRepository,
-	mercadoPagoService
+	mercadoPagoService,
+	orderService
 );
 
 const paymentOrderController = new PaymentOrderController(paymentOrderService);
 
 export const routes = async (fastify: FastifyInstance) => {
 	fastify.get(
-		'/admin/payment-orders',
+		'/payment-orders',
 		SwaggerGetPaymentOrders,
 		paymentOrderController.getPaymentOrders.bind(paymentOrderController)
 	);
+
 	fastify.get(
-		'/totem/payment-orders/:id',
+		'/payment-orders/:id',
 		SwaggerGetPaymentOrderById,
 		paymentOrderController.getPaymentOrderById.bind(paymentOrderController)
 	);
+
 	fastify.get(
-		'/totem/orders/:orderId/payment-orders',
+		'/payment-orders/orders/:orderId',
 		SwaggerGetPaymentOrderByOrderId,
 		paymentOrderController.getPaymentOrderByOrderId.bind(paymentOrderController)
 	);
+
 	fastify.post(
-		'/totem/payment-orders/make-payment/:orderId',
+		'/payment-orders/make-payment/:orderId',
 		SwaggerPaymentOrderMakePayment,
 		paymentOrderController.makePayment.bind(paymentOrderController)
 	);
+
 	fastify.post(
-		'/totem/payment-orders/process-payment-notifications',
+		'/payment-orders/process-payment-notifications',
 		SwaggerPaymentOrderProcessPaymentNotifications,
 		paymentOrderController.processPaymentNotification.bind(
 			paymentOrderController
