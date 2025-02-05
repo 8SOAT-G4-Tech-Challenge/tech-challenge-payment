@@ -44,7 +44,7 @@ export class OrderService {
 			throw new InvalidOrderException('ID is required');
 		}
 
-		logger.info(`Fetching order via Order Microservice:  ${id}}`);
+		logger.info(`Fetching order via Order Microservice: ${id}`);
 
 		return this.orderHttpClient.getOrderCreatedById({ id });
 	}

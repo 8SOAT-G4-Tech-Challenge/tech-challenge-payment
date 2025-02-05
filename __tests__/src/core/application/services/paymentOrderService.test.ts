@@ -1,17 +1,15 @@
-import { OrderMockBuilder } from '@tests/mocks/order.mock-builder';
-import { PaymentNotificationMockBuilder } from '@tests/mocks/payment-notification.mock-builder';
-import { PaymentOrderMockBuilder } from '@tests/mocks/payment-order-service.mock-builder';
-import logger from '@src/core/common/logger';
-
 import { PaymentNotificationStateEnum } from '@src/core/application/enumerations/paymentNotificationStateEnum';
 import { InvalidPaymentOrderException } from '@src/core/application/exceptions/invalidPaymentOrderException';
 import { PaymentNotificationException } from '@src/core/application/exceptions/paymentNotificationException';
 import { PaymentOrderService } from '@src/core/application/services/paymentOrderService';
+import logger from '@src/core/common/logger';
+import { OrderMockBuilder } from '@tests/mocks/order.mock-builder';
+import { PaymentNotificationMockBuilder } from '@tests/mocks/payment-notification.mock-builder';
+import { PaymentOrderMockBuilder } from '@tests/mocks/payment-order.mock-builder';
 
 describe('PaymentOrderService -> Test', () => {
 	let service: PaymentOrderService;
 	let mockPaymentOrderRepository: any;
-	let mockOrderRepository: any;
 	let orderService: any = jest.fn();
 	let mercadoPagoService: any = jest.fn();
 
@@ -24,20 +22,11 @@ describe('PaymentOrderService -> Test', () => {
 			updatePaymentOrder: jest.fn(),
 		};
 
-		mockOrderRepository = {
-			getOrders: jest.fn(),
-			getOrderById: jest.fn(),
-			getOrderCreatedById: jest.fn(),
-			getOrdersByStatus: jest.fn(),
-			createOrder: jest.fn(),
-			updateOrder: jest.fn(),
-			getNumberOfValidOrdersToday: jest.fn(),
-		};
-
 		orderService = {
 			updateOrder: jest.fn(),
 			getOrderTotalValueById: jest.fn(),
 			getOrderCreatedById: jest.fn(),
+			getNumberOfValidOrdersToday: jest.fn(),
 		};
 
 		mercadoPagoService = {
@@ -46,9 +35,8 @@ describe('PaymentOrderService -> Test', () => {
 
 		service = new PaymentOrderService(
 			mockPaymentOrderRepository,
-			mockOrderRepository,
-			orderService,
-			mercadoPagoService
+			mercadoPagoService,
+			orderService
 		);
 	});
 
@@ -259,7 +247,6 @@ describe('PaymentOrderService -> Test', () => {
 				...paymentOrder,
 				status: 'approved',
 			});
-			mockOrderRepository.getNumberOfValidOrdersToday.mockResolvedValue(2);
 			orderService.updateOrder.mockResolvedValue(order);
 
 			// @ts-expect-error typescript
@@ -312,10 +299,8 @@ describe('PaymentOrderService -> Test', () => {
 				...paymentOrder,
 				status: 'approved',
 			});
-			mockOrderRepository.getNumberOfValidOrdersToday.mockResolvedValue(
-				undefined
-			);
 			orderService.updateOrder.mockResolvedValue(order);
+			orderService.getNumberOfValidOrdersToday.mockResolvedValue(1);
 
 			// @ts-expect-error typescript
 			await service.processPaymentNotification(notification);
@@ -407,7 +392,6 @@ describe('PaymentOrderService -> Test', () => {
 				...paymentOrder,
 				status: 'pending',
 			});
-			mockOrderRepository.getNumberOfValidOrdersToday.mockResolvedValue(2);
 			orderService.updateOrder.mockResolvedValue(order);
 
 			// @ts-expect-error typescript

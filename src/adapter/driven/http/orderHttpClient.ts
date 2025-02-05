@@ -23,7 +23,7 @@ export class OrderHttpClient {
 
 	async getAllCartItemsByOrderId(orderId: string): Promise<OrderItem[]> {
 		try {
-			const response = await axios.get(
+			const response = await this.axiosInstance.get(
 				`${this.baseUrl}/order-items/${orderId}`
 			);
 			return response.data;
@@ -39,7 +39,9 @@ export class OrderHttpClient {
 
 	async getProductById(productId: string): Promise<ProductWithDetails> {
 		try {
-			const response = await axios.get(`${this.baseUrl}/products/${productId}`);
+			const response = await this.axiosInstance.get(
+				`${this.baseUrl}/products/${productId}`
+			);
 			return response.data;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -80,11 +82,15 @@ export class OrderHttpClient {
 
 	async getNumberOfValidOrdersToday(): Promise<number> {
 		try {
-			const response = await this.axiosInstance.get<{ count: number }>('/orders/valid-orders-today');
+			const response = await this.axiosInstance.get<{ count: number }>(
+				'/orders/valid-orders-today'
+			);
 			return response.data.count;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
-				throw new Error(`Error fetching order count: ${error.response.statusText}`);
+				throw new Error(
+					`Error fetching order count: ${error.response.statusText}`
+				);
 			}
 			throw new Error('Unexpected error fetching order count');
 		}

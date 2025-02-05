@@ -1,16 +1,8 @@
-import { PaymentOrderMockBuilder } from '@tests/mocks/payment-order-service.mock-builder';
 import { prisma } from '@src/adapter/driven/infra/lib/prisma';
 import { PaymentOrderRepositoryImpl } from '@src/adapter/driven/infra/paymentOrderRepositoryImpl';
+import { PaymentOrderMockBuilder } from '@tests/mocks/payment-order.mock-builder';
 
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
-
-jest.mock('@src/core/application/services/cacheService', () => ({
-	cacheService: {
-		get: jest.fn(),
-		set: jest.fn(),
-		del: jest.fn(),
-	},
-}));
 
 describe('PaymentOrderRepositoryImpl -> Test', () => {
 	let repository: PaymentOrderRepositoryImpl;

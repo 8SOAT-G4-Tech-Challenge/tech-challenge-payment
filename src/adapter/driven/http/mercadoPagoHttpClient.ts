@@ -44,7 +44,7 @@ export class MercadoPagoHttpClient {
 
 			return formattedResponse;
 		} catch (error) {
-			this.handleError(error);
+			return this.handleError(error);
 		}
 	}
 
