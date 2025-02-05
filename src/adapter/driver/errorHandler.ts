@@ -23,7 +23,7 @@ export const errorHandler: FastifyErrorHandler = (error, request, reply) => {
 		responseError.status = error.statusCode;
 	}
 
-	return reply.status(responseError.status).send(responseError);
+	reply.status(responseError.status).send(responseError);
 };
 
 export function handleError(
