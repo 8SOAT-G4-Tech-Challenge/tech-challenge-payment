@@ -1,46 +1,26 @@
-import axios from 'axios';
-
-import { EnvironmentService } from '@common/environmentService';
 import logger from '@common/logger';
-import { InvalidMercadoPagoException } from '@exceptions/invalidMercadoPagoException';
 import {
 	CreateQrRequest,
 	CreateQrRequestItem,
 	CreateQrResponse,
 } from '@models/mercadoPagoQr';
 import { OrderItem } from '@models/orderItem';
-import {
-	convertKeysToCamelCase,
-	convertKeysToSnakeCase,
-} from '@application/utils/caseConverterUtil';
+import { ProductWithDetails } from '@models/product';
+import { MercadoPagoHttpClient } from '@src/adapter/driven/http/mercadoPagoHttpClient';
 
-import { CartService } from './cartService';
-import { ProductService } from './productService';
+import { OrderService } from './orderService';
 
 export class MercadoPagoService {
-	private readonly cartService: CartService;
+	private readonly orderService: OrderService;
 
-	private readonly productService: ProductService;
-
-	private readonly baseUrl: string = 'https://api.mercadopago.com';
-
-	private readonly posId: string;
-
-	private readonly token: string;
-
-	private readonly userId: number;
+	private readonly mercadoPagoHttpClient: MercadoPagoHttpClient;
 
 	constructor(
-		cartService: CartService,
-		productService: ProductService,
-		environmentService: EnvironmentService
+		orderService: OrderService,
+		mercadoPagoHttpClient: MercadoPagoHttpClient
 	) {
-		this.cartService = cartService;
-		this.productService = productService;
-
-		this.token = environmentService.getMercadoPagoToken();
-		this.userId = environmentService.getMercadoPagoUserId();
-		this.posId = environmentService.getMercadoPagoExternalPosId();
+		this.mercadoPagoHttpClient = mercadoPagoHttpClient;
+		this.orderService = orderService;
 	}
 
 	async createQrPaymentRequest(
@@ -49,13 +29,13 @@ export class MercadoPagoService {
 	): Promise<CreateQrResponse> {
 		logger.info('Creating QR Payment Request...');
 
-		const orderItems = await this.cartService.getAllCartItemsByOrderId(orderId);
+		const orderItems: OrderItem[] =
+			await this.orderService.getAllCartItemsByOrderId(orderId);
 
 		const createQrRequestItems: CreateQrRequestItem[] = await Promise.all(
 			orderItems.map(async (orderItem: OrderItem) => {
-				const product = await this.productService.getProductById(
-					orderItem.productId
-				);
+				const product: ProductWithDetails =
+					await this.orderService.getProductById(orderItem.productId);
 
 				return {
 					title: orderItem.productId,
@@ -90,56 +70,19 @@ export class MercadoPagoService {
 	async createQrCodePayment(
 		request: CreateQrRequest
 	): Promise<CreateQrResponse> {
-		try {
-			const formattedRequest: CreateQrRequest = convertKeysToSnakeCase(request);
+		logger.info('Making request to collect qrData');
 
-			logger.info(
-				`Making request to: ${this.baseUrl}/instore/orders/qr/seller/collectors/${this.userId}/pos/${this.posId}/qrs to collect qrData`
-			);
+		const response: CreateQrResponse =
+			await this.mercadoPagoHttpClient.createQrCodePayment(request);
 
-			const response = await axios.post<CreateQrResponse>(
-				`${this.baseUrl}/instore/orders/qr/seller/collectors/${this.userId}/pos/${this.posId}/qrs`,
-				formattedRequest,
-				{
-					headers: {
-						Authorization: `Bearer ${this.token}`,
-						'Content-Type': 'application/json',
-					},
-				}
-			);
+		logger.info(
+			`Object successfully returned by Mercado Pago was: ${JSON.stringify(
+				response,
+				null,
+				2
+			)}`
+		);
 
-			const formattedResponse: CreateQrResponse = await convertKeysToCamelCase(
-				response.data
-			);
-
-			logger.info(
-				`Object successfully returned by Mercado Pago was: ${JSON.stringify(
-					formattedResponse,
-					null,
-					2
-				)}`
-			);
-
-			return formattedResponse;
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const { data, status } = error.response;
-
-				const errorMessage = data.message || 'Unknown error occurred';
-				const errorStatus = status || 500;
-				const errorDetails = data.error || 'Error details not provided';
-
-				throw new InvalidMercadoPagoException(
-					`Error: ${errorDetails}, Message: ${errorMessage}`,
-					errorStatus
-				);
-			}
-
-			logger.info(
-				`Error on createQrCodePayment: ${JSON.stringify(error, null, 2)}`
-			);
-
-			throw new InvalidMercadoPagoException('Unexpected error occurred', 500);
-		}
+		return response;
 	}
 }

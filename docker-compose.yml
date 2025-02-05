@@ -1,28 +1,60 @@
-version: '3.8'
-
 services:
-  postgres:
-    container_name: tech-challenger-pg
-    image: postgres
+  mongodb:
+    container_name: tech-challenge-payment-mongo
+    image: mongo
     ports:
-      - '5432:5432'
+      - '27017:27017'
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: docker
-      POSTGRES_DB: tech-challenger
-      PGDATA: '/var/lib/postgresql/data'
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+      MONGO_INITDB_ROOT_USERNAME: tech-challenge
+      MONGO_INITDB_ROOT_PASSWORD: docker
     networks:
-      - tech-challenger-network
+      - tech-challenge-payment-network
+    volumes:
+      - ./mongo-keyfile:/data/mongo-keyfile
+    command: [
+        '/bin/bash',
+        '-c',
+        "
+        chmod 600 /data/mongo-keyfile && \
+        chown 999:999 /data/mongo-keyfile && \
+        mongod --replSet rs0 --bind_ip_all --keyFile /data/mongo-keyfile
+        ",
+      ]
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: mongosh --username tech-challenge --password docker --authenticationDatabase admin --eval "db.runCommand('ping').ok"
       interval: 10s
       timeout: 5s
       retries: 5
 
+  mongo-init-replica:
+    image: mongo
+    container_name: tech-challenge-payment-mongo-init
+    depends_on:
+      - mongodb
+    networks:
+      - tech-challenge-payment-network
+    restart: 'no'
+    entrypoint: [
+        'bash',
+        '-c',
+        '
+        echo ''Aguardando MongoDB iniciar...'';
+        until mongosh --host mongodb --eval ''db.runCommand({ ping: 1 })'' > /dev/null 2>&1; do
+        sleep 2;
+        done;
+        echo ''MongoDB pronto. Iniciando Replica Set...'';
+        mongosh --host mongodb --eval ''
+        rs.initiate({
+        _id: "rs0",
+        members: [{ _id: 0, host: "mongodb:27017" }]
+        })
+        '';
+        echo ''Replica Set iniciado com sucesso!'';
+        ',
+      ]
+
   app:
-    container_name: tech-challenger-api
+    container_name: tech-challenge-payment-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -31,33 +63,14 @@ services:
       - '5555:5555'
     env_file: .env
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      mongo-init-replica:
+        condition: service_completed_successfully
     environment:
-      DATABASE_URL: 'postgresql://postgres:docker@postgres:5432/tech-challenger'
-      REDIS_URL: ${REDIS_URL}
+      DATABASE_URL: 'mongodb://tech-challenge:docker@mongodb:27017/tech-challenge?authSource=admin&replicaSet=rs0'
       API_PORT: 3333
     networks:
-      - tech-challenger-network
-
-  redis:
-    container_name: tech-challenger-redis
-    image: redis:latest
-    ports:
-      - '6379:6379'
-    networks:
-      - tech-challenger-network
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - tech-challenge-payment-network
 
 networks:
-  tech-challenger-network:
+  tech-challenge-payment-network:
     driver: bridge
-
-volumes:
-  postgres-data:

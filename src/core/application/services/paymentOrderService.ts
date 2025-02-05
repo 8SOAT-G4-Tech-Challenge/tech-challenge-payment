@@ -13,7 +13,6 @@ import {
 	MakePaymentOrderParams,
 	UpdatePaymentOrderParams,
 } from '@ports/input/paymentOrders';
-import { OrderRepository } from '@ports/repository/orderRepository';
 import { PaymentOrderRepository } from '@ports/repository/paymentOrderRepository';
 
 import { UpdateOrderParams } from '../ports/input/orders';
@@ -23,22 +22,18 @@ import { OrderService } from './orderService';
 export class PaymentOrderService {
 	private readonly paymentOrderRepository;
 
-	private readonly orderRepository;
+	private readonly mercadoPagoService: MercadoPagoService;
 
 	private readonly orderService: OrderService;
 
-	private readonly mercadoPagoService: MercadoPagoService;
-
 	constructor(
 		paymentOrderRepository: PaymentOrderRepository,
-		orderRepository: OrderRepository,
-		orderService: OrderService,
-		mercadoPagoService: MercadoPagoService
+		mercadoPagoService: MercadoPagoService,
+		orderService: OrderService
 	) {
 		this.paymentOrderRepository = paymentOrderRepository;
-		this.orderRepository = orderRepository;
-		this.orderService = orderService;
 		this.mercadoPagoService = mercadoPagoService;
+		this.orderService = orderService;
 	}
 
 	async getPaymentOrders(): Promise<PaymentOrder[]> {
@@ -78,6 +73,7 @@ export class PaymentOrderService {
 		const order = await this.orderService.getOrderCreatedById({
 			id: orderId,
 		});
+
 		if (!order) {
 			throw new InvalidPaymentOrderException(
 				`Order with id: ${orderId} not found`
@@ -86,6 +82,7 @@ export class PaymentOrderService {
 
 		const existingPaymentOrder =
 			await this.paymentOrderRepository.getPaymentOrderByOrderId({ orderId });
+
 		if (existingPaymentOrder) {
 			throw new InvalidPaymentOrderException(
 				`Payment Order for the Order ID: ${orderId} already exists`
@@ -149,24 +146,28 @@ export class PaymentOrderService {
 
 		if (PaymentOrderStatusEnum.pending === paymentOrder.status) {
 			logger.info(`Found payment order: ${JSON.stringify(paymentOrder)}`);
+
 			const updatePaymentOrderParams: UpdatePaymentOrderParams = {
 				id: paymentOrder.id,
 				status: PaymentOrderStatusEnum.approved,
 				paidAt: new Date(notificationData.created_at),
 				value: notificationData.amount,
 			};
+
 			logger.info(
 				`Updating payment order: ${JSON.stringify(updatePaymentOrderParams)}`
 			);
+
 			paymentOrder = await this.paymentOrderRepository.updatePaymentOrder(
 				updatePaymentOrderParams
 			);
+
 			logger.info(
 				`Payment order updated successfully: ${JSON.stringify(paymentOrder)}`
 			);
 
 			const numberOfOrdersToday =
-				await this.orderRepository.getNumberOfValidOrdersToday() ?? 0;
+				(await this.orderService.getNumberOfValidOrdersToday()) ?? 0;
 
 			const updateOrder: UpdateOrderParams = {
 				id: paymentOrder.orderId,
@@ -186,9 +187,11 @@ export class PaymentOrderService {
 
 	async cancelPayment(notificationData: NotificationPaymentDto): Promise<void> {
 		logger.info(`Cancelated payment: ${JSON.stringify(notificationData)}`);
+
 		logger.info(
 			`Searching for payment order by id: ${notificationData.additional_info.external_reference}`
 		);
+
 		let paymentOrder =
 			await this.paymentOrderRepository.getPaymentOrderByOrderId({
 				orderId: notificationData.additional_info.external_reference,
@@ -206,12 +209,15 @@ export class PaymentOrderService {
 				id: paymentOrder.id,
 				status: PaymentOrderStatusEnum.cancelled,
 			};
+
 			logger.info(
 				`Updating payment order: ${JSON.stringify(updatePaymentOrderParams)}`
 			);
+
 			paymentOrder = await this.paymentOrderRepository.updatePaymentOrder(
 				updatePaymentOrderParams
 			);
+
 			logger.info(
 				`Payment order updated successfully: ${JSON.stringify(paymentOrder)}`
 			);
@@ -220,8 +226,11 @@ export class PaymentOrderService {
 				id: paymentOrder.orderId,
 				status: OrderStatusEnum.canceled,
 			};
+
 			logger.info(`Updating order: ${JSON.stringify(updateOrder)}`);
+
 			const order = await this.orderService.updateOrder(updateOrder);
+
 			logger.info(`Order updated successfully: ${JSON.stringify(order)}`);
 		} else {
 			throw new PaymentNotificationException(

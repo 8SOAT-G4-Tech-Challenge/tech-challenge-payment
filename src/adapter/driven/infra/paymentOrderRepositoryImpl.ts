@@ -5,23 +5,12 @@ import {
 	UpdatePaymentOrderParams,
 } from '@application/ports/input/paymentOrders';
 import { PaymentOrderRepository } from '@application/ports/repository/paymentOrderRepository';
-import { PaymentOrderStatusEnum } from '@application/enumerations/paymentOrderEnum';
 import { prisma } from '@driven/infra/lib/prisma';
 import { PaymentOrder } from '@models/paymentOrder';
 
 export class PaymentOrderRepositoryImpl implements PaymentOrderRepository {
 	async getPaymentOrders(): Promise<PaymentOrder[]> {
-		const paymentOrders = await prisma.paymentOrder.findMany({
-			select: {
-				id: true,
-				orderId: true,
-				status: true,
-				value: true,
-				paidAt: true,
-				createdAt: true,
-				updatedAt: true,
-			},
-		});
+		const paymentOrders = await prisma.paymentOrder.findMany();
 
 		return paymentOrders.map((paymentOrder) => ({
 			...paymentOrder,
@@ -34,25 +23,11 @@ export class PaymentOrderRepositoryImpl implements PaymentOrderRepository {
 	): Promise<PaymentOrder | null> {
 		const paymentOrder = await prisma.paymentOrder.findUnique({
 			where: { id: getPaymentOrderByIdParams.id },
-			select: {
-				id: true,
-				orderId: true,
-				value: true,
-				paidAt: true,
-				status: true,
-				createdAt: true,
-				updatedAt: true,
-			},
 		});
 
-		if (paymentOrder) {
-			return {
-				...paymentOrder,
-				value: parseFloat(paymentOrder.value.toString()),
-			};
-		}
-
-		return paymentOrder;
+		return paymentOrder
+			? { ...paymentOrder, value: parseFloat(paymentOrder.value.toString()) }
+			: null;
 	}
 
 	async getPaymentOrderByOrderId(
@@ -62,25 +37,11 @@ export class PaymentOrderRepositoryImpl implements PaymentOrderRepository {
 
 		const paymentOrder = await prisma.paymentOrder.findUnique({
 			where: { orderId },
-			select: {
-				id: true,
-				orderId: true,
-				value: true,
-				paidAt: true,
-				status: true,
-				createdAt: true,
-				updatedAt: true,
-			},
 		});
 
-		if (paymentOrder) {
-			return {
-				...paymentOrder,
-				value: parseFloat(paymentOrder.value.toString()),
-			};
-		}
-
-		return paymentOrder;
+		return paymentOrder
+			? { ...paymentOrder, value: parseFloat(paymentOrder.value.toString()) }
+			: null;
 	}
 
 	async createPaymentOrder(
@@ -90,7 +51,7 @@ export class PaymentOrderRepositoryImpl implements PaymentOrderRepository {
 			data: {
 				orderId: createPaymentOrderParams.orderId,
 				qrData: createPaymentOrderParams.qrData,
-				status: PaymentOrderStatusEnum.pending,
+				status: 'pending',
 				value: createPaymentOrderParams.value,
 			},
 		});
@@ -104,16 +65,14 @@ export class PaymentOrderRepositoryImpl implements PaymentOrderRepository {
 	async updatePaymentOrder(
 		updatePaymentOrderParams: UpdatePaymentOrderParams
 	): Promise<PaymentOrder> {
-		const updatePaymentOrder = await prisma.paymentOrder.update({
-			where: {
-				id: updatePaymentOrderParams.id,
-			},
+		const updatedPaymentOrder = await prisma.paymentOrder.update({
+			where: { id: updatePaymentOrderParams.id },
 			data: updatePaymentOrderParams,
 		});
 
 		return {
-			...updatePaymentOrder,
-			value: parseFloat(updatePaymentOrder.value.toString()),
+			...updatedPaymentOrder,
+			value: parseFloat(updatedPaymentOrder.value.toString()),
 		};
 	}
 }
