@@ -13,7 +13,7 @@ describe('MercadoPagoService -> Test', () => {
 
 	let service: MercadoPagoService;
 	let orderService: any = jest.fn();
-	let mercadoPagoHttpClient: any = jest.fn();
+	let mercadoPagoApiAdapter: any = jest.fn();
 
 	beforeEach(() => {
 		orderService = {
@@ -21,11 +21,11 @@ describe('MercadoPagoService -> Test', () => {
 			getProductById: jest.fn(),
 		};
 
-		mercadoPagoHttpClient = {
+		mercadoPagoApiAdapter = {
 			createQrCodePayment: jest.fn(),
 		};
 
-		service = new MercadoPagoService(orderService, mercadoPagoHttpClient);
+		service = new MercadoPagoService(orderService, mercadoPagoApiAdapter);
 	});
 
 	afterEach(() => {
@@ -41,7 +41,7 @@ describe('MercadoPagoService -> Test', () => {
 
 			orderService.getAllCartItemsByOrderId.mockResolvedValue([orderItem]);
 			orderService.getProductById.mockResolvedValue(orderItem);
-			mercadoPagoHttpClient.createQrCodePayment.mockResolvedValue(
+			mercadoPagoApiAdapter.createQrCodePayment.mockResolvedValue(
 				mockedQRResponse
 			);
 

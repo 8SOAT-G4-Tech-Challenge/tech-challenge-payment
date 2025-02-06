@@ -6,20 +6,20 @@ import {
 } from '@models/mercadoPagoQr';
 import { OrderItem } from '@models/orderItem';
 import { ProductWithDetails } from '@models/product';
-import { MercadoPagoHttpClient } from '@src/adapter/driven/http/mercadoPagoHttpClient';
+import { MercadoPagoApiPort } from '@src/core/application/ports/output/mercadoPagoApiPort';
 
 import { OrderService } from './orderService';
 
 export class MercadoPagoService {
 	private readonly orderService: OrderService;
 
-	private readonly mercadoPagoHttpClient: MercadoPagoHttpClient;
+	private readonly mercadoPagoApiPort: MercadoPagoApiPort;
 
 	constructor(
 		orderService: OrderService,
-		mercadoPagoHttpClient: MercadoPagoHttpClient
+		mercadoPagoApiPort: MercadoPagoApiPort
 	) {
-		this.mercadoPagoHttpClient = mercadoPagoHttpClient;
+		this.mercadoPagoApiPort = mercadoPagoApiPort;
 		this.orderService = orderService;
 	}
 
@@ -73,7 +73,7 @@ export class MercadoPagoService {
 		logger.info('Making request to collect qrData');
 
 		const response: CreateQrResponse =
-			await this.mercadoPagoHttpClient.createQrCodePayment(request);
+			await this.mercadoPagoApiPort.createQrCodePayment(request);
 
 		logger.info(
 			`Object successfully returned by Mercado Pago was: ${JSON.stringify(

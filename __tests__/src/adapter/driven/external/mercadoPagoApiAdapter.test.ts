@@ -1,4 +1,4 @@
-import { MercadoPagoHttpClient } from '@src/adapter/driven/http/mercadoPagoHttpClient';
+import { MercadoPagoApiAdapter } from '@src/adapter/driven/external/mercadoPagoApiAdapter';
 
 // eslint-disable-next-line object-curly-newline
 const { baseUrl, token, userId, posId } = {
@@ -22,8 +22,8 @@ jest.mock('axios', () => ({
 	isAxiosError: () => mockedIsAxiosError,
 }));
 
-describe('MercadoPagoHttpClient -> Test', () => {
-	let client: MercadoPagoHttpClient;
+describe('MercadoPagoApiAdapter -> Test', () => {
+	let client: MercadoPagoApiAdapter;
 
 	const request = {
 		externalReference: 'externalReference',
@@ -35,7 +35,7 @@ describe('MercadoPagoHttpClient -> Test', () => {
 	};
 
 	beforeEach(() => {
-		client = new MercadoPagoHttpClient(baseUrl, token, userId, posId);
+		client = new MercadoPagoApiAdapter(baseUrl, token, userId, posId);
 	});
 
 	afterEach(() => {

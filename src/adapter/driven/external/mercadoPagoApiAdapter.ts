@@ -9,7 +9,9 @@ import {
 	CreateQrResponse,
 } from '@src/core/domain/models/mercadoPagoQr';
 
-export class MercadoPagoHttpClient {
+import { MercadoPagoApiPort } from '../../../core/application/ports/output/mercadoPagoApiPort';
+
+export class MercadoPagoApiAdapter implements MercadoPagoApiPort {
 	private readonly axiosInstance: AxiosInstance;
 
 	constructor(
