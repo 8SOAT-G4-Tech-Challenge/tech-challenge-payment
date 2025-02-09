@@ -6,13 +6,13 @@ import { OrderItem } from '@models/orderItem';
 import { ProductWithDetails } from '@models/product';
 import { GetOrderByIdParams, UpdateOrderParams } from '@ports/input/orders';
 import { CreateOrderResponse } from '@ports/output/orders';
-import { OrderApiPort } from '@src/core/application/ports/output/orderApiPort';
+import { OrderApi } from '@src/core/application/ports/output/orderApi';
 
 export class OrderService {
-	private readonly orderApiPort: OrderApiPort;
+	private readonly orderApi: OrderApi;
 
-	constructor(orderApiPort: OrderApiPort) {
-		this.orderApiPort = orderApiPort;
+	constructor(orderApi: OrderApi) {
+		this.orderApi = orderApi;
 	}
 
 	async getProductById(id: string): Promise<ProductWithDetails> {
@@ -24,7 +24,7 @@ export class OrderService {
 
 		logger.info('Fetching product from Order Microservice');
 
-		return this.orderApiPort.getProductById(id);
+		return this.orderApi.getProductById(id);
 	}
 
 	async getAllCartItemsByOrderId(orderId: string): Promise<OrderItem[]> {
@@ -36,7 +36,7 @@ export class OrderService {
 
 		logger.info('Fetching order items from Order Microservice');
 
-		return this.orderApiPort.getAllCartItemsByOrderId(orderId);
+		return this.orderApi.getAllCartItemsByOrderId(orderId);
 	}
 
 	async getOrderCreatedById({ id }: GetOrderByIdParams): Promise<Order> {
@@ -46,7 +46,7 @@ export class OrderService {
 
 		logger.info(`Fetching order via Order Microservice: ${id}`);
 
-		return this.orderApiPort.getOrderCreatedById({ id });
+		return this.orderApi.getOrderCreatedById({ id });
 	}
 
 	async updateOrder(order: UpdateOrderParams): Promise<CreateOrderResponse> {
@@ -60,7 +60,7 @@ export class OrderService {
 			`Updating order via Order Microservice: ${JSON.stringify(order)}`
 		);
 
-		return this.orderApiPort.updateOrder(order);
+		return this.orderApi.updateOrder(order);
 	}
 
 	async getOrderTotalValueById(id: string): Promise<number> {
@@ -89,6 +89,6 @@ export class OrderService {
 
 	async getNumberOfValidOrdersToday(): Promise<number> {
 		logger.info('Getting number of valid orders today via Order Microservice');
-		return this.orderApiPort.getNumberOfValidOrdersToday();
+		return this.orderApi.getNumberOfValidOrdersToday();
 	}
 }

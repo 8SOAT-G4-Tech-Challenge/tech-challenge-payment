@@ -9,9 +9,9 @@ import {
 } from '@src/core/application/ports/input/orders';
 import { UpdateOrderResponse } from '@src/core/application/ports/output/orders';
 
-import { OrderApiPort } from '../../../core/application/ports/output/orderApiPort';
+import { OrderApi } from '../../../core/application/ports/output/orderApi';
 
-export class OrderApiAdapter implements OrderApiPort {
+export class OrderApiImpl implements OrderApi {
 	private readonly axiosInstance: AxiosInstance;
 
 	constructor(private readonly baseUrl: string) {

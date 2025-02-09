@@ -7,7 +7,7 @@ import {
 } from '@src/core/application/ports/input/orders';
 import { UpdateOrderResponse } from '@src/core/application/ports/output/orders';
 
-export interface OrderApiPort {
+export interface OrderApi {
 	getAllCartItemsByOrderId(orderId: string): Promise<OrderItem[]>;
 	getProductById(productId: string): Promise<ProductWithDetails>;
 	updateOrder(order: UpdateOrderParams): Promise<UpdateOrderResponse>;
