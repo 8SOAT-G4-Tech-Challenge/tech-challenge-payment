@@ -5,8 +5,8 @@ import {
 	OrderService,
 	PaymentOrderService,
 } from '@application/services';
-import { MercadoPagoHttpClient } from '@src/adapter/driven/http/mercadoPagoHttpClient';
-import { OrderHttpClient } from '@src/adapter/driven/http/orderHttpClient';
+import { MercadoPagoApiImpl } from '@src/adapter/driven/external/MercadoPagoApiImpl';
+import { OrderApiImpl } from '@src/adapter/driven/external/OrderApiImpl';
 import { PaymentOrderRepositoryImpl } from '@src/adapter/driven/infra/paymentOrderRepositoryImpl';
 
 import { PaymentOrderController } from '../controllers/paymentOrderController';
@@ -18,22 +18,22 @@ import {
 	SwaggerPaymentOrderProcessPaymentNotifications,
 } from './doc/paymentOrders';
 
-const mercadoPagoHttpClient = new MercadoPagoHttpClient(
+const mercadoPagoApiImpl = new MercadoPagoApiImpl(
 	process.env.MERCADO_PAGO_BASE_URL ?? '',
 	process.env.MERCADO_PAGO_TOKEN ?? '',
 	Number(process.env.MERCADO_PAGO_USER_ID),
 	process.env.MERCADO_PAGO_EXTERNAL_POS_ID ?? ''
 );
 
-const orderHttpClient = new OrderHttpClient(process.env.CART_BASE_URL ?? '');
+const orderApiImpl = new OrderApiImpl(process.env.ORDER_BASE_URL ?? '');
 
 const paymentOrderRepository = new PaymentOrderRepositoryImpl();
 
-const orderService = new OrderService(orderHttpClient);
+const orderService = new OrderService(orderApiImpl);
 
 const mercadoPagoService = new MercadoPagoService(
 	orderService,
-	mercadoPagoHttpClient
+	mercadoPagoApiImpl
 );
 
 const paymentOrderService = new PaymentOrderService(

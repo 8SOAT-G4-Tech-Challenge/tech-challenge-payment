@@ -1,4 +1,4 @@
-import { OrderHttpClient } from '@src/adapter/driven/http/orderHttpClient';
+import { OrderApiImpl } from '@src/adapter/driven/external/OrderApiImpl';
 import { OrderItemMockBuilder } from '@tests/mocks/order-item.mock-builder';
 import { OrderMockBuilder } from '@tests/mocks/order.mock-builder';
 import { ProductMockBuilder } from '@tests/mocks/product.mock-builder';
@@ -19,11 +19,11 @@ jest.mock('axios', () => ({
 	isAxiosError: () => mockedIsAxiosError,
 }));
 
-describe('OrderHttpClient -> Test', () => {
-	let client: OrderHttpClient;
+describe('OrderApiImpl -> Test', () => {
+	let client: OrderApiImpl;
 
 	beforeEach(() => {
-		client = new OrderHttpClient(mockedURL);
+		client = new OrderApiImpl(mockedURL);
 	});
 
 	afterEach(() => {
