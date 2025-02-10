@@ -7,10 +7,10 @@ import { ProductMockBuilder } from '@tests/mocks/product.mock-builder';
 
 describe('OrderService -> Test', () => {
 	let service: OrderService;
-	let orderHttpClient: any;
+	let orderApiAdapter: any;
 
 	beforeEach(() => {
-		orderHttpClient = {
+		orderApiAdapter = {
 			getProductById: jest.fn(),
 			getAllCartItemsByOrderId: jest.fn(),
 			getOrderCreatedById: jest.fn(),
@@ -18,7 +18,7 @@ describe('OrderService -> Test', () => {
 			getNumberOfValidOrdersToday: jest.fn(),
 		};
 
-		service = new OrderService(orderHttpClient);
+		service = new OrderService(orderApiAdapter);
 	});
 
 	afterEach(() => {
@@ -31,11 +31,11 @@ describe('OrderService -> Test', () => {
 
 			const order = new OrderMockBuilder().withDefaultValues().build();
 
-			(orderHttpClient.getProductById as jest.Mock).mockResolvedValue(order);
+			(orderApiAdapter.getProductById as jest.Mock).mockResolvedValue(order);
 
 			const response = await service.getProductById(order.id);
 
-			expect(orderHttpClient.getProductById).toHaveBeenCalledWith(order.id);
+			expect(orderApiAdapter.getProductById).toHaveBeenCalledWith(order.id);
 			expect(loggerSpy).toHaveBeenCalledWith(
 				'Fetching product from Order Microservice'
 			);
@@ -61,13 +61,13 @@ describe('OrderService -> Test', () => {
 
 			const order = new OrderMockBuilder().withDefaultValues().build();
 
-			(orderHttpClient.getAllCartItemsByOrderId as jest.Mock).mockResolvedValue(
+			(orderApiAdapter.getAllCartItemsByOrderId as jest.Mock).mockResolvedValue(
 				[order]
 			);
 
 			const response = await service.getAllCartItemsByOrderId(order.id);
 
-			expect(orderHttpClient.getAllCartItemsByOrderId).toHaveBeenCalledWith(
+			expect(orderApiAdapter.getAllCartItemsByOrderId).toHaveBeenCalledWith(
 				order.id
 			);
 			expect(loggerSpy).toHaveBeenCalledWith(
@@ -95,13 +95,13 @@ describe('OrderService -> Test', () => {
 
 			const order = new OrderMockBuilder().withDefaultValues().build();
 
-			(orderHttpClient.getOrderCreatedById as jest.Mock).mockResolvedValue(
+			(orderApiAdapter.getOrderCreatedById as jest.Mock).mockResolvedValue(
 				order
 			);
 
 			const response = await service.getOrderCreatedById({ id: order.id });
 
-			expect(orderHttpClient.getOrderCreatedById).toHaveBeenCalledWith({
+			expect(orderApiAdapter.getOrderCreatedById).toHaveBeenCalledWith({
 				id: order.id,
 			});
 			expect(loggerSpy).toHaveBeenCalledWith(
@@ -126,12 +126,12 @@ describe('OrderService -> Test', () => {
 
 			const order = new OrderMockBuilder().withDefaultValues().build();
 
-			(orderHttpClient.updateOrder as jest.Mock).mockResolvedValue(order);
+			(orderApiAdapter.updateOrder as jest.Mock).mockResolvedValue(order);
 
 			// @ts-expect-error typescript
 			const response = await service.updateOrder(order);
 
-			expect(orderHttpClient.updateOrder).toHaveBeenCalledWith(order);
+			expect(orderApiAdapter.updateOrder).toHaveBeenCalledWith(order);
 			expect(loggerSpy).toHaveBeenCalledWith(
 				`Updating order via Order Microservice: ${JSON.stringify(order)}`
 			);
@@ -157,13 +157,13 @@ describe('OrderService -> Test', () => {
 			const order = new OrderMockBuilder().withDefaultValues().build();
 			const product = new ProductMockBuilder().withDefaultValues().build();
 
-			(orderHttpClient.getAllCartItemsByOrderId as jest.Mock).mockResolvedValue(
+			(orderApiAdapter.getAllCartItemsByOrderId as jest.Mock).mockResolvedValue(
 				[product]
 			);
 
 			const response = await service.getOrderTotalValueById(order.id);
 
-			expect(orderHttpClient.getAllCartItemsByOrderId).toHaveBeenCalledWith(
+			expect(orderApiAdapter.getAllCartItemsByOrderId).toHaveBeenCalledWith(
 				order.id
 			);
 			expect(loggerSpy).toHaveBeenCalledWith(
@@ -187,7 +187,7 @@ describe('OrderService -> Test', () => {
 		test('should throw invalid order value InvalidOrderException', async () => {
 			const order = new OrderMockBuilder().withDefaultValues().build();
 
-			(orderHttpClient.getAllCartItemsByOrderId as jest.Mock).mockResolvedValue(
+			(orderApiAdapter.getAllCartItemsByOrderId as jest.Mock).mockResolvedValue(
 				[]
 			);
 
@@ -207,12 +207,12 @@ describe('OrderService -> Test', () => {
 			const loggerSpy = jest.spyOn(logger, 'info');
 
 			(
-				orderHttpClient.getNumberOfValidOrdersToday as jest.Mock
+				orderApiAdapter.getNumberOfValidOrdersToday as jest.Mock
 			).mockResolvedValue(2);
 
 			await service.getNumberOfValidOrdersToday();
 
-			expect(orderHttpClient.getNumberOfValidOrdersToday).toHaveBeenCalled();
+			expect(orderApiAdapter.getNumberOfValidOrdersToday).toHaveBeenCalled();
 			expect(loggerSpy).toHaveBeenCalledWith(
 				'Getting number of valid orders today via Order Microservice'
 			);
