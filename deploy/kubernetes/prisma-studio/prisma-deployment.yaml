@@ -20,7 +20,7 @@ spec:
           image: lucasaccurcio/tech-challenge-prisma-studio:v2
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 5555
+            - containerPort: 5557
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:

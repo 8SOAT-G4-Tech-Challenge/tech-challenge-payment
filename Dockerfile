@@ -42,7 +42,7 @@ ENV DATABASE_URL=postgresql://postgres:docker@postgres:5432/tech-challenger
 EXPOSE 3333
 
 # Exposição da porta para o Prisma Studio
-EXPOSE 5555
+EXPOSE 5557
 
 # Comando para criar banco de dados, iniciar a aplicação e o Prisma Studio
 CMD ["sh", "-c", "npx prisma generate && npx prisma db push && node dist/adapter/driver/server.js & npx prisma studio"]
