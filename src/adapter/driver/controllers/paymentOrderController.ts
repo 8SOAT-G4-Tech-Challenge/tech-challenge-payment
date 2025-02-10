@@ -31,7 +31,9 @@ export class PaymentOrderController {
 			reply.code(StatusCodes.OK).send(paymentOrders);
 		} catch (error) {
 			const errorMessage = 'Unexpected error when listing for payment orders';
-			logger.error(`${errorMessage}: ${JSON.stringify(error)}`);
+			logger.error(
+				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
+			);
 			handleError(req, reply, error);
 		}
 	}
@@ -49,17 +51,12 @@ export class PaymentOrderController {
 			const paymentOrder: PaymentOrder | null =
 				await this.paymentOrderService.getPaymentOrderById(params);
 
-			if (paymentOrder) {
-				reply.code(StatusCodes.OK).send(paymentOrder);
-			} else {
-				reply.code(StatusCodes.NOT_FOUND).send({
-					error: 'Not Found',
-					message: `Payment Order with ${params.id} not found`,
-				});
-			}
+			reply.code(StatusCodes.OK).send(paymentOrder);
 		} catch (error) {
 			const errorMessage = 'Unexpected error when listing for payment order';
-			logger.error(`${errorMessage}: ${JSON.stringify(error)}`);
+			logger.error(
+				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
+			);
 			handleError(req, reply, error);
 		}
 	}
@@ -78,17 +75,12 @@ export class PaymentOrderController {
 			const paymentOrder: PaymentOrder | null =
 				await this.paymentOrderService.getPaymentOrderByOrderId(params);
 
-			if (paymentOrder) {
-				reply.code(StatusCodes.OK).send(paymentOrder);
-			} else {
-				reply.code(StatusCodes.NOT_FOUND).send({
-					error: 'Not Found',
-					message: `Payment Order with Order ID ${params.orderId} not found`,
-				});
-			}
+			reply.code(StatusCodes.OK).send(paymentOrder);
 		} catch (error) {
 			const errorMessage = 'Unexpected error when listing for payment order';
-			logger.error(`${errorMessage}: ${JSON.stringify(error)}`);
+			logger.error(
+				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
+			);
 			handleError(req, reply, error);
 		}
 	}
@@ -109,7 +101,9 @@ export class PaymentOrderController {
 			reply.code(StatusCodes.OK).send(paymentOrder);
 		} catch (error) {
 			const errorMessage = 'Unexpected error when making payment order';
-			logger.error(`${errorMessage}: ${JSON.stringify(error)}`);
+			logger.error(
+				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
+			);
 			handleError(req, reply, error);
 		}
 	}
@@ -127,7 +121,9 @@ export class PaymentOrderController {
 		} catch (error) {
 			const errorMessage =
 				'Unexpected error when process notification payment order';
-			logger.error(`${errorMessage}: ${JSON.stringify(error)}`);
+			logger.error(
+				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
+			);
 			handleError(req, reply, error);
 		}
 	}
