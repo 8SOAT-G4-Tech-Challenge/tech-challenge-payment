@@ -46,31 +46,31 @@ const paymentOrderController = new PaymentOrderController(paymentOrderService);
 
 export const routes = async (fastify: FastifyInstance) => {
 	fastify.get(
-		'/payment-orders',
+		'/admin/payment-orders',
 		SwaggerGetPaymentOrders,
 		paymentOrderController.getPaymentOrders.bind(paymentOrderController)
 	);
 
 	fastify.get(
-		'/payment-orders/:id',
+		'/totem/payment-orders/:id',
 		SwaggerGetPaymentOrderById,
 		paymentOrderController.getPaymentOrderById.bind(paymentOrderController)
 	);
 
 	fastify.get(
-		'/payment-orders/orders/:orderId',
+		'/totem/payment-orders/orders/:orderId',
 		SwaggerGetPaymentOrderByOrderId,
 		paymentOrderController.getPaymentOrderByOrderId.bind(paymentOrderController)
 	);
 
 	fastify.post(
-		'/payment-orders/make-payment/:orderId',
+		'/totem/payment-orders/make-payment/:orderId',
 		SwaggerPaymentOrderMakePayment,
 		paymentOrderController.makePayment.bind(paymentOrderController)
 	);
 
 	fastify.post(
-		'/payment-orders/process-payment-notifications',
+		'/totem/payment-orders/process-payment-notifications',
 		SwaggerPaymentOrderProcessPaymentNotifications,
 		paymentOrderController.processPaymentNotification.bind(
 			paymentOrderController

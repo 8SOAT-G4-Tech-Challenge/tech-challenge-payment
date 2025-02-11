@@ -60,7 +60,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3333:3333'
-      - '5555:5555'
+      - '5557:5557'
     env_file: .env
     depends_on:
       mongo-init-replica:
@@ -70,7 +70,10 @@ services:
       API_PORT: 3333
     networks:
       - tech-challenge-payment-network
+      - tech-challenge-global
 
 networks:
   tech-challenge-payment-network:
     driver: bridge
+  tech-challenge-global:
+    external: true

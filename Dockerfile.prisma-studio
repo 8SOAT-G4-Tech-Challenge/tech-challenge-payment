@@ -13,7 +13,7 @@ COPY prisma ./prisma
 RUN npm install
 
 # Expõe a porta padrão do Prisma Studio
-EXPOSE 5555
+EXPOSE 5557
 
 # Comando para iniciar o Prisma Studio
 CMD ["npx", "prisma", "studio"]
