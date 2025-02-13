@@ -24,16 +24,12 @@ export class PaymentOrderController {
 		reply: FastifyReply
 	): Promise<void> {
 		try {
-			logger.info('Listing payment orders');
+			logger.info('[PAYMENT ORDER CONTROLLER] Listing payment orders');
 			const paymentOrders: PaymentOrder[] =
 				await this.paymentOrderService.getPaymentOrders();
 
 			reply.code(StatusCodes.OK).send(paymentOrders);
 		} catch (error) {
-			const errorMessage = 'Unexpected error when listing for payment orders';
-			logger.error(
-				`${errorMessage}: ${JSON.stringify(error?.response?.message)}`
-			);
 			handleError(req, reply, error);
 		}
 	}
@@ -47,16 +43,12 @@ export class PaymentOrderController {
 		};
 
 		try {
-			logger.info('Listing payment order by ID');
+			logger.info('[PAYMENT ORDER CONTROLLER] Listing payment order by ID');
 			const paymentOrder: PaymentOrder | null =
 				await this.paymentOrderService.getPaymentOrderById(params);
 
 			reply.code(StatusCodes.OK).send(paymentOrder);
 		} catch (error) {
-			const errorMessage = 'Unexpected error when listing for payment order';
-			logger.error(
-				`${errorMessage}: ${JSON.stringify(error?.response?.message)}`
-			);
 			handleError(req, reply, error);
 		}
 	}
@@ -70,31 +62,26 @@ export class PaymentOrderController {
 		};
 
 		try {
-			logger.info('Listing payment order by order ID');
+			logger.info(
+				'[PAYMENT ORDER CONTROLLER] Listing payment order by order ID'
+			);
 
 			const paymentOrder: PaymentOrder | null =
 				await this.paymentOrderService.getPaymentOrderByOrderId(params);
 
 			reply.code(StatusCodes.OK).send(paymentOrder);
 		} catch (error) {
-			const errorMessage = 'Unexpected error when listing for payment order';
-			logger.error(
-				`${errorMessage}: ${JSON.stringify(error?.response?.message)}`
-			);
 			handleError(req, reply, error);
 		}
 	}
 
-	async makePayment(
-		req: FastifyRequest<{ Body: MakePaymentOrderParams }>,
-		reply: FastifyReply
-	): Promise<void> {
+	async makePayment(req: FastifyRequest, reply: FastifyReply): Promise<void> {
 		const params: MakePaymentOrderParams = req.params as {
 			orderId: string;
 		};
 
 		try {
-			logger.info('Making payment order');
+			logger.info('[PAYMENT ORDER CONTROLLER] Making payment order');
 			const paymentOrder: PaymentOrder =
 				await this.paymentOrderService.makePayment(params);
 

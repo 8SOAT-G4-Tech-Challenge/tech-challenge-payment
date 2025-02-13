@@ -10,13 +10,6 @@ import { OrderApiImpl } from '@src/adapter/driven/external/OrderApiImpl';
 import { PaymentOrderRepositoryImpl } from '@src/adapter/driven/infra/paymentOrderRepositoryImpl';
 
 import { PaymentOrderController } from '../controllers/paymentOrderController';
-import {
-	SwaggerGetPaymentOrderById,
-	SwaggerGetPaymentOrderByOrderId,
-	SwaggerGetPaymentOrders,
-	SwaggerPaymentOrderMakePayment,
-	SwaggerPaymentOrderProcessPaymentNotifications,
-} from './doc/paymentOrders';
 
 const mercadoPagoApiImpl = new MercadoPagoApiImpl(
 	process.env.MERCADO_PAGO_BASE_URL ?? '',
@@ -47,31 +40,26 @@ const paymentOrderController = new PaymentOrderController(paymentOrderService);
 export const routes = async (fastify: FastifyInstance) => {
 	fastify.get(
 		'/admin/payment-orders',
-		SwaggerGetPaymentOrders,
 		paymentOrderController.getPaymentOrders.bind(paymentOrderController)
 	);
 
 	fastify.get(
 		'/totem/payment-orders/:id',
-		SwaggerGetPaymentOrderById,
 		paymentOrderController.getPaymentOrderById.bind(paymentOrderController)
 	);
 
 	fastify.get(
 		'/totem/payment-orders/orders/:orderId',
-		SwaggerGetPaymentOrderByOrderId,
 		paymentOrderController.getPaymentOrderByOrderId.bind(paymentOrderController)
 	);
 
 	fastify.post(
 		'/totem/payment-orders/make-payment/:orderId',
-		SwaggerPaymentOrderMakePayment,
 		paymentOrderController.makePayment.bind(paymentOrderController)
 	);
 
 	fastify.post(
 		'/totem/payment-orders/process-payment-notifications',
-		SwaggerPaymentOrderProcessPaymentNotifications,
 		paymentOrderController.processPaymentNotification.bind(
 			paymentOrderController
 		)
