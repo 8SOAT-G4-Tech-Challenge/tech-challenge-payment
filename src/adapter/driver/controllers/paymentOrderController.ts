@@ -32,7 +32,7 @@ export class PaymentOrderController {
 		} catch (error) {
 			const errorMessage = 'Unexpected error when listing for payment orders';
 			logger.error(
-				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
+				`${errorMessage}: ${JSON.stringify(error?.response?.message)}`
 			);
 			handleError(req, reply, error);
 		}
@@ -55,7 +55,7 @@ export class PaymentOrderController {
 		} catch (error) {
 			const errorMessage = 'Unexpected error when listing for payment order';
 			logger.error(
-				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
+				`${errorMessage}: ${JSON.stringify(error?.response?.message)}`
 			);
 			handleError(req, reply, error);
 		}
@@ -79,7 +79,7 @@ export class PaymentOrderController {
 		} catch (error) {
 			const errorMessage = 'Unexpected error when listing for payment order';
 			logger.error(
-				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
+				`${errorMessage}: ${JSON.stringify(error?.response?.message)}`
 			);
 			handleError(req, reply, error);
 		}
@@ -100,10 +100,6 @@ export class PaymentOrderController {
 
 			reply.code(StatusCodes.OK).send(paymentOrder);
 		} catch (error) {
-			const errorMessage = 'Unexpected error when making payment order';
-			logger.error(
-				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
-			);
 			handleError(req, reply, error);
 		}
 	}
@@ -114,16 +110,13 @@ export class PaymentOrderController {
 	): Promise<void> {
 		try {
 			logger.info(
-				`Process notification payment order ${JSON.stringify(req.body)}`
+				`[PAYMENT ORDER CONTROLLER] Process notification payment order ${JSON.stringify(
+					req.body
+				)}`
 			);
 			await this.paymentOrderService.processPaymentNotification(req.body);
 			reply.code(StatusCodes.NO_CONTENT).send();
 		} catch (error) {
-			const errorMessage =
-				'Unexpected error when process notification payment order';
-			logger.error(
-				`${errorMessage}: ${JSON.stringify(error?.response.message)}`
-			);
 			handleError(req, reply, error);
 		}
 	}

@@ -26,7 +26,7 @@ export class OrderApiImpl implements OrderApi {
 	async getAllCartItemsByOrderId(orderId: string): Promise<OrderItem[]> {
 		try {
 			const response = await this.axiosInstance.get(
-				`${this.baseUrl}/order-items/${orderId}`
+				`${this.baseUrl}/totem/order-items/${orderId}`
 			);
 			return response.data;
 		} catch (error) {
@@ -42,7 +42,7 @@ export class OrderApiImpl implements OrderApi {
 	async getProductById(productId: string): Promise<ProductWithDetails> {
 		try {
 			const response = await this.axiosInstance.get(
-				`${this.baseUrl}/products/${productId}`
+				`${this.baseUrl}/totem/products/${productId}`
 			);
 			return response.data;
 		} catch (error) {
@@ -56,7 +56,7 @@ export class OrderApiImpl implements OrderApi {
 	async updateOrder(order: UpdateOrderParams): Promise<UpdateOrderResponse> {
 		try {
 			const response = await this.axiosInstance.put<UpdateOrderResponse>(
-				`/orders/${order.id}`,
+				`/totem/orders/${order.id}`,
 				order
 			);
 			return response.data;
@@ -71,7 +71,7 @@ export class OrderApiImpl implements OrderApi {
 	async getOrderCreatedById({ id }: GetOrderByIdParams): Promise<Order> {
 		try {
 			const response = await this.axiosInstance.get<Order>(
-				`/orders/${id}?status=created`
+				`/totem/orders/${id}`
 			);
 			return response.data;
 		} catch (error) {
@@ -85,7 +85,7 @@ export class OrderApiImpl implements OrderApi {
 	async getNumberOfValidOrdersToday(): Promise<number> {
 		try {
 			const response = await this.axiosInstance.get<{ count: number }>(
-				'/orders/valid-orders-today'
+				'/totem/orders/valid-orders-today'
 			);
 			return response.data.count;
 		} catch (error) {
