@@ -66,11 +66,9 @@ export class PaymentOrderService {
 		return paymentOrder;
 	}
 
-	async makePayment(
-		makePaymentOrderParams: MakePaymentOrderParams
-	): Promise<PaymentOrder> {
-		const { orderId } = makePaymentOrderParams;
-
+	async makePayment({
+		orderId,
+	}: MakePaymentOrderParams): Promise<PaymentOrder> {
 		logger.info('[PAYMENT ORDER SERVICE] Getting order');
 
 		const order = await this.orderService.getOrderCreatedById({
