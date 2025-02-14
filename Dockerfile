@@ -35,9 +35,6 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
 
-# Define as variáveis de ambiente necessárias
-ENV DATABASE_URL=postgresql://postgres:docker@postgres:5432/tech-challenger
-
 # Exposição da porta para API
 EXPOSE 3333
 

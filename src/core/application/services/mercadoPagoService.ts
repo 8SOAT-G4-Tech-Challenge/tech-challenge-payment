@@ -5,7 +5,6 @@ import {
 	CreateQrResponse,
 } from '@models/mercadoPagoQr';
 import { OrderItem } from '@models/orderItem';
-import { ProductWithDetails } from '@models/product';
 import { MercadoPagoApi } from '@src/core/application/ports/output/mercadoPagoApi';
 
 import { OrderService } from './orderService';
@@ -15,36 +14,34 @@ export class MercadoPagoService {
 
 	private readonly mercadoPagoApi: MercadoPagoApi;
 
-	constructor(
-		orderService: OrderService,
-		mercadoPagoApi: MercadoPagoApi
-	) {
+	constructor(orderService: OrderService, mercadoPagoApi: MercadoPagoApi) {
 		this.mercadoPagoApi = mercadoPagoApi;
 		this.orderService = orderService;
 	}
 
-	async createQrPaymentRequest(
-		orderId: string,
-		value: number
-	): Promise<CreateQrResponse> {
-		logger.info('Creating QR Payment Request...');
+	async createQrPaymentRequest(orderId: string): Promise<CreateQrResponse> {
+		logger.info('[MERCADO PAGO SERVICE] Creating QR Payment Request...');
 
 		const orderItems: OrderItem[] =
 			await this.orderService.getAllCartItemsByOrderId(orderId);
 
 		const createQrRequestItems: CreateQrRequestItem[] = await Promise.all(
-			orderItems.map(async (orderItem: OrderItem) => {
-				const product: ProductWithDetails =
-					await this.orderService.getProductById(orderItem.productId);
+			orderItems.map(async (orderItem: OrderItem) => ({
+				title: orderItem.productId,
+				quantity: orderItem.quantity,
+				unitMeasure: 'unit',
+				totalAmount: orderItem.value,
+				unitPrice: orderItem.value / orderItem.quantity,
+			}))
+		);
 
-				return {
-					title: orderItem.productId,
-					quantity: orderItem.quantity,
-					unitMeasure: 'unit',
-					totalAmount: orderItem.value,
-					unitPrice: product.value,
-				};
-			})
+		const value = orderItems.reduce(
+			(acc, productItem) => acc + productItem.value,
+			0
+		);
+
+		logger.info(
+			`[MERCADO PAGO SERVICE] Total value from order ${orderId} is ${value}`
 		);
 
 		const createQrRequest: CreateQrRequest = {
@@ -57,7 +54,7 @@ export class MercadoPagoService {
 		};
 
 		logger.info(
-			`CreateQrRequest object to send to Mercado Pago: ${JSON.stringify(
+			`[MERCADO PAGO SERVICE] CreateQrRequest object to send to Mercado Pago: ${JSON.stringify(
 				createQrRequest,
 				null,
 				2
@@ -70,19 +67,19 @@ export class MercadoPagoService {
 	async createQrCodePayment(
 		request: CreateQrRequest
 	): Promise<CreateQrResponse> {
-		logger.info('Making request to collect qrData');
+		logger.info('[MERCADO PAGO SERVICE] Making request to collect qrData');
 
 		const response: CreateQrResponse =
 			await this.mercadoPagoApi.createQrCodePayment(request);
 
 		logger.info(
-			`Object successfully returned by Mercado Pago was: ${JSON.stringify(
+			`[MERCADO PAGO SERVICE] Object successfully returned by Mercado Pago was: ${JSON.stringify(
 				response,
 				null,
 				2
 			)}`
 		);
 
-		return response;
+		return { ...response, value: request.totalAmount };
 	}
 }

@@ -18,4 +18,5 @@ export interface CreateQrRequest {
 export interface CreateQrResponse {
 	qrData: string;
 	inStoreOrderId: string;
+	value: number;
 }
