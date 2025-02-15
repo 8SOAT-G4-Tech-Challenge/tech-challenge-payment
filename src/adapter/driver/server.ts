@@ -58,7 +58,9 @@ app.register(helmet, {
 	noSniff: true,
 });
 
-app.register(routes);
+app.register(routes, {
+	prefix: '/payments',
+});
 
 app.setErrorHandler(errorHandler);
 
