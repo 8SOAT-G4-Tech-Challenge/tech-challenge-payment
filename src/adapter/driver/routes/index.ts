@@ -28,7 +28,6 @@ const mercadoPagoService = new MercadoPagoService(
 	orderService,
 	mercadoPagoApiImpl
 );
-
 const paymentOrderService = new PaymentOrderService(
 	paymentOrderRepository,
 	mercadoPagoService,
