@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prisma-studio
+  namespace: tech-challenge-group-4
+  labels:
+    name: prisma-studio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prisma-studio
+  template:
+    metadata:
+      labels:
+        app: prisma-studio
+    spec:
+      containers:
+        - name: prisma-studio
+          image: lucasaccurcio/tech-challenge-prisma-studio:v2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5557
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: 'postgresql://postgres:$(POSTGRES_PASSWORD)@postgres-service:5432/tech-challenger'
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
