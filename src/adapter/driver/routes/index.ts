@@ -38,6 +38,10 @@ const paymentOrderService = new PaymentOrderService(
 const paymentOrderController = new PaymentOrderController(paymentOrderService);
 
 export const routes = async (fastify: FastifyInstance) => {
+	fastify.get('/health', async (_request, reply) => {
+		reply.status(200).send({ message: 'Health Check - Ok' });
+	});
+
 	fastify.get(
 		'/admin/payment-orders',
 		paymentOrderController.getPaymentOrders.bind(paymentOrderController)
