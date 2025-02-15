@@ -13,9 +13,6 @@ RUN npm install
 # Copia o restante dos arquivos da aplicação
 COPY . .
 
-# Gera o Prisma Client
-RUN npx prisma generate
-
 # Compila o código TypeScript para JavaScript
 RUN npm run build
 
@@ -33,7 +30,6 @@ COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/package-lock.json ./package-lock.json
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/prisma ./prisma
 
 # Exposição da porta para API
 EXPOSE 3333
