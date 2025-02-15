@@ -41,22 +41,27 @@ export const routes = async (fastify: FastifyInstance) => {
 	fastify.get('/health', async (_request, reply) => {
 		reply.status(200).send({ message: 'Health Check Payment - Ok' });
 	});
+
 	fastify.get(
 		'/admin/payment-orders',
 		paymentOrderController.getPaymentOrders.bind(paymentOrderController)
 	);
+
 	fastify.get(
 		'/totem/payment-orders/:id',
 		paymentOrderController.getPaymentOrderById.bind(paymentOrderController)
 	);
+
 	fastify.get(
 		'/totem/payment-orders/orders/:orderId',
 		paymentOrderController.getPaymentOrderByOrderId.bind(paymentOrderController)
 	);
+
 	fastify.post(
 		'/totem/payment-orders/make-payment/:orderId',
 		paymentOrderController.makePayment.bind(paymentOrderController)
 	);
+
 	fastify.post(
 		'/totem/payment-orders/process-payment-notifications',
 		paymentOrderController.processPaymentNotification.bind(
