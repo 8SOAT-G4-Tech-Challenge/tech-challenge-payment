@@ -17,6 +17,15 @@ A partir dos dados do pedido, este microsserviço:
 - Fornece o QR Code ao cliente para realizar o pagamento.
 - Acompanha o status do pagamento e atualiza o pedido conforme necessário.
 
+### Endpoints
+
+Esta API fornece documentação no padrão OpenAPI através do Swagger.
+Os endpoints disponíveis, suas descrições e dados necessários para requisição podem ser consultados e testados em `/docs`.
+
+### Desenvolvimento
+
+Para realizar o desenvolvimento de novas features, é importante realizar as configurações descritas na [Documentação de desenvolvimento](https://github.com/8SOAT-G4-Tech-Challenge/tech-challenge-fiap-documentation/blob/master/docs/DESENVOLVIMENTO.md).
+
 ### Participantes
 
 - Amanda Maschio - RM 357734
