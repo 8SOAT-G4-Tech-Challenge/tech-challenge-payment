@@ -112,14 +112,14 @@ describe('PaymentOrderService -> Test', () => {
 
 			orderService.getOrderCreatedById.mockResolvedValue(undefined);
 
-			const rejectedFunction = async () => {
+			try {
 				await service.makePayment({ orderId: order.id });
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(InvalidPaymentOrderException);
-			expect(rejectedFunction()).rejects.toThrow(
-				`Order with id: ${order.id} not found`
-			);
+				fail('Expected InvalidPaymentOrderException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(InvalidPaymentOrderException);
+				expect(error.message).toBe(`Order with id: ${order.id} not found`);
+				expect(error.statusCode).toBe(400);
+			}
 		});
 
 		test('should throw InvalidPaymentOrderException when payment order already exists', async () => {
@@ -133,14 +133,16 @@ describe('PaymentOrderService -> Test', () => {
 				paymentOrder
 			);
 
-			const rejectedFunction = async () => {
+			try {
 				await service.makePayment({ orderId: order.id });
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(InvalidPaymentOrderException);
-			expect(rejectedFunction()).rejects.toThrow(
-				`Payment Order for the Order ID: ${order.id} already exists`
-			);
+				fail('Expected InvalidPaymentOrderException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(InvalidPaymentOrderException);
+				expect(error.message).toBe(
+					`Payment Order for the Order ID: ${order.id} already exists`
+				);
+				expect(error.statusCode).toBe(400);
+			}
 		});
 
 		test('should create payment order', async () => {
@@ -169,22 +171,24 @@ describe('PaymentOrderService -> Test', () => {
 			expect(
 				mockPaymentOrderRepository.getPaymentOrderByOrderId
 			).toHaveBeenCalledWith({ orderId: order.id });
-			expect(loggerSpy).toHaveBeenCalledWith('Creating Payment Order');
+			expect(loggerSpy).toHaveBeenCalledWith(
+				'[PAYMENT ORDER SERVICE] Creating Payment Order'
+			);
 			expect(response).toEqual(paymentOrder);
 		});
 	});
 
 	describe('processPaymentNotification', () => {
 		test('should throw PaymentNotificationException', async () => {
-			const rejectedFunction = async () => {
+			try {
 				// @ts-expect-error typescript
 				await service.processPaymentNotification({ state: 'status' });
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(PaymentNotificationException);
-			expect(rejectedFunction()).rejects.toThrow(
-				'Invalid payment notification type status'
-			);
+				fail('Expected PaymentNotificationException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(PaymentNotificationException);
+				expect(error.message).toBe('Invalid payment notification type status');
+				expect(error.statusCode).toBe(400);
+			}
 		});
 
 		test('should throw InvalidPaymentOrderException when payment order already exists', async () => {
@@ -198,17 +202,19 @@ describe('PaymentOrderService -> Test', () => {
 				paymentOrder
 			);
 
-			const rejectedFunction = async () => {
+			try {
 				await service.makePayment({ orderId: order.id });
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(InvalidPaymentOrderException);
-			expect(rejectedFunction()).rejects.toThrow(
-				`Payment Order for the Order ID: ${order.id} already exists`
-			);
+				fail('Expected InvalidPaymentOrderException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(InvalidPaymentOrderException);
+				expect(error.message).toBe(
+					`Payment Order for the Order ID: ${order.id} already exists`
+				);
+				expect(error.statusCode).toBe(400);
+			}
 		});
 
-		test('should proccess finished orders and throw PaymentNotificationException', async () => {
+		test('should process finished orders and throw PaymentNotificationException', async () => {
 			const notification = new PaymentNotificationMockBuilder()
 				.withDefaultValues()
 				.build();
@@ -217,15 +223,17 @@ describe('PaymentOrderService -> Test', () => {
 				undefined
 			);
 
-			const rejectedFunction = async () => {
+			try {
 				// @ts-expect-error typescript
 				await service.processPaymentNotification(notification);
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(PaymentNotificationException);
-			expect(rejectedFunction()).rejects.toThrow(
-				`Error processing payment finish notification. Payment order ${notification.additional_info.external_reference} not found.`
-			);
+				fail('Expected PaymentNotificationException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(PaymentNotificationException);
+				expect(error.message).toBe(
+					`Error processing payment finish notification. Payment order ${notification.additional_info.external_reference} not found.`
+				);
+				expect(error.statusCode).toBe(400);
+			}
 		});
 
 		test('should proccess finished orders', async () => {
@@ -257,7 +265,7 @@ describe('PaymentOrderService -> Test', () => {
 			);
 		});
 
-		test('should proccess finished orders and throw PaymentNotificationException', async () => {
+		test('should process finished orders and throw PaymentNotificationException', async () => {
 			const paymentOrder = new PaymentOrderMockBuilder()
 				.withDefaultValues()
 				.build();
@@ -269,15 +277,17 @@ describe('PaymentOrderService -> Test', () => {
 				paymentOrder
 			);
 
-			const rejectedFunction = async () => {
+			try {
 				// @ts-expect-error typescript
 				await service.processPaymentNotification(notification);
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(PaymentNotificationException);
-			expect(rejectedFunction()).rejects.toThrow(
-				`Error processing payment finish notification. Payment order ${notification.additional_info.external_reference} with status other than pending. Current status: ${paymentOrder.status}`
-			);
+				fail('Expected PaymentNotificationException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(PaymentNotificationException);
+				expect(error.message).toBe(
+					`Error processing payment finish notification. Payment order ${notification.additional_info.external_reference} with status other than pending. Current status: ${paymentOrder.status}`
+				);
+				expect(error.statusCode).toBe(400);
+			}
 		});
 
 		test('should proccess finished orders when is the first order of the day', async () => {
@@ -323,10 +333,12 @@ describe('PaymentOrderService -> Test', () => {
 				state: PaymentNotificationStateEnum.CONFIRMATION_REQUIRED,
 			});
 
-			expect(loggerSpy).toHaveBeenCalledWith('Confirmation payment required');
+			expect(loggerSpy).toHaveBeenCalledWith(
+				'[PAYMENT ORDER SERVICE] Confirmation payment required'
+			);
 		});
 
-		test('should proccess cancelled orders and throw PaymentNotificationException when paymentOrder is not pending', async () => {
+		test('should process cancelled orders and throw PaymentNotificationException when paymentOrder is not pending', async () => {
 			const paymentOrder = new PaymentOrderMockBuilder()
 				.withDefaultValues()
 				.withStatus('approved')
@@ -340,18 +352,20 @@ describe('PaymentOrderService -> Test', () => {
 				paymentOrder
 			);
 
-			const rejectedFunction = async () => {
+			try {
 				// @ts-expect-error typescript
 				await service.processPaymentNotification(notification);
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(PaymentNotificationException);
-			expect(rejectedFunction()).rejects.toThrow(
-				`Error processing payment cancelation notification. Payment order ${notification.additional_info.external_reference} with status other than pending. Current status: ${paymentOrder.status}`
-			);
+				fail('Expected PaymentNotificationException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(PaymentNotificationException);
+				expect(error.message).toBe(
+					`Error processing payment cancelation notification. Payment order ${notification.additional_info.external_reference} with status other than pending. Current status: ${paymentOrder.status}`
+				);
+				expect(error.statusCode).toBe(400);
+			}
 		});
 
-		test('should proccess cancelled orders and throw PaymentNotificationException', async () => {
+		test('should process cancelled orders and throw PaymentNotificationException', async () => {
 			const notification = new PaymentNotificationMockBuilder()
 				.withDefaultValues()
 				.withState('CANCELED')
@@ -361,15 +375,17 @@ describe('PaymentOrderService -> Test', () => {
 				undefined
 			);
 
-			const rejectedFunction = async () => {
+			try {
 				// @ts-expect-error typescript
 				await service.processPaymentNotification(notification);
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(PaymentNotificationException);
-			expect(rejectedFunction()).rejects.toThrow(
-				`Error processing payment cancelation notification. Payment order ${notification.additional_info.external_reference} not found.`
-			);
+				fail('Expected PaymentNotificationException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(PaymentNotificationException);
+				expect(error.message).toBe(
+					`Error processing payment cancelation notification. Payment order ${notification.additional_info.external_reference} not found.`
+				);
+				expect(error.statusCode).toBe(400);
+			}
 		});
 
 		test('should proccess cancelled orders', async () => {
@@ -398,7 +414,9 @@ describe('PaymentOrderService -> Test', () => {
 			await service.processPaymentNotification(notification);
 
 			expect(loggerSpy).toHaveBeenCalledWith(
-				`Order updated successfully: ${JSON.stringify(order)}`
+				`[PAYMENT ORDER SERVICE] Order updated successfully: ${JSON.stringify(
+					order
+				)}`
 			);
 		});
 	});

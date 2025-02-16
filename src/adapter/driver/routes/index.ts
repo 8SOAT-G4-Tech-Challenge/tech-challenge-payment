@@ -10,13 +10,6 @@ import { OrderApiImpl } from '@src/adapter/driven/external/OrderApiImpl';
 import { PaymentOrderRepositoryImpl } from '@src/adapter/driven/infra/paymentOrderRepositoryImpl';
 
 import { PaymentOrderController } from '../controllers/paymentOrderController';
-import {
-	SwaggerGetPaymentOrderById,
-	SwaggerGetPaymentOrderByOrderId,
-	SwaggerGetPaymentOrders,
-	SwaggerPaymentOrderMakePayment,
-	SwaggerPaymentOrderProcessPaymentNotifications,
-} from './doc/paymentOrders';
 
 const mercadoPagoApiImpl = new MercadoPagoApiImpl(
 	process.env.MERCADO_PAGO_BASE_URL ?? '',
@@ -45,33 +38,32 @@ const paymentOrderService = new PaymentOrderService(
 const paymentOrderController = new PaymentOrderController(paymentOrderService);
 
 export const routes = async (fastify: FastifyInstance) => {
+	fastify.get('/health', async (_request, reply) => {
+		reply.status(200).send({ message: 'Health Check Payment - Ok' });
+	});
+
 	fastify.get(
-		'/payment-orders',
-		SwaggerGetPaymentOrders,
+		'/admin/payment-orders',
 		paymentOrderController.getPaymentOrders.bind(paymentOrderController)
 	);
 
 	fastify.get(
-		'/payment-orders/:id',
-		SwaggerGetPaymentOrderById,
+		'/totem/payment-orders/:id',
 		paymentOrderController.getPaymentOrderById.bind(paymentOrderController)
 	);
 
 	fastify.get(
-		'/payment-orders/orders/:orderId',
-		SwaggerGetPaymentOrderByOrderId,
+		'/totem/payment-orders/orders/:orderId',
 		paymentOrderController.getPaymentOrderByOrderId.bind(paymentOrderController)
 	);
 
 	fastify.post(
-		'/payment-orders/make-payment/:orderId',
-		SwaggerPaymentOrderMakePayment,
+		'/totem/payment-orders/make-payment/:orderId',
 		paymentOrderController.makePayment.bind(paymentOrderController)
 	);
 
 	fastify.post(
-		'/payment-orders/process-payment-notifications',
-		SwaggerPaymentOrderProcessPaymentNotifications,
+		'/totem/payment-orders/process-payment-notifications',
 		paymentOrderController.processPaymentNotification.bind(
 			paymentOrderController
 		)

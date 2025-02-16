@@ -12,6 +12,6 @@ spec:
   ports:
     - name: prisma-studio-port
       protocol: TCP
-      port: 5555
-      targetPort: 5555
+      port: 5557
+      targetPort: 5557
       nodePort: 31555

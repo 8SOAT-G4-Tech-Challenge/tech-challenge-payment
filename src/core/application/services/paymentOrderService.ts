@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { OrderStatusEnum } from '@application/enumerations/orderStatusEnum';
 import { PaymentNotificationStateEnum } from '@application/enumerations/paymentNotificationStateEnum';
 import { PaymentOrderStatusEnum } from '@application/enumerations/paymentOrderEnum';
@@ -60,19 +61,21 @@ export class PaymentOrderService {
 		const paymentOrder: PaymentOrder | null =
 			await this.paymentOrderRepository.getPaymentOrderByOrderId(
 				getPaymentOrderByOrderIdParams
-			);
+			); 
 
 		return paymentOrder;
 	}
 
-	async makePayment(
-		makePaymentOrderParams: MakePaymentOrderParams
-	): Promise<PaymentOrder> {
-		const { orderId } = makePaymentOrderParams;
+	async makePayment({
+		orderId,
+	}: MakePaymentOrderParams): Promise<PaymentOrder> {
+		logger.info('[PAYMENT ORDER SERVICE] Getting order');
 
 		const order = await this.orderService.getOrderCreatedById({
 			id: orderId,
 		});
+
+		logger.info(`[PAYMENT ORDER SERVICE] Order found: ${orderId}`);
 
 		if (!order) {
 			throw new InvalidPaymentOrderException(
@@ -80,8 +83,18 @@ export class PaymentOrderService {
 			);
 		}
 
+		logger.info(
+			`[PAYMENT ORDER SERVICE] Getting payment order by order ID: ${orderId}`
+		);
+
 		const existingPaymentOrder =
 			await this.paymentOrderRepository.getPaymentOrderByOrderId({ orderId });
+
+		logger.info(
+			`[PAYMENT ORDER SERVICE] Payment order found: ${
+				existingPaymentOrder?.id || 'not found'
+			}`
+		);
 
 		if (existingPaymentOrder) {
 			throw new InvalidPaymentOrderException(
@@ -89,17 +102,23 @@ export class PaymentOrderService {
 			);
 		}
 
-		const value =
-			(await this.orderService.getOrderTotalValueById(orderId)) ?? 0;
+		logger.info(
+			`[PAYMENT ORDER SERVICE] Getting order total value by ID: ${orderId}`
+		);
+
+		logger.info('[PAYMENT ORDER SERVICE] Creating Payment Order');
 
 		const createQrResponse: CreateQrResponse =
-			await this.mercadoPagoService.createQrPaymentRequest(orderId, value);
+			await this.mercadoPagoService.createQrPaymentRequest(orderId);
 
-		logger.info('Creating Payment Order');
+		logger.info(
+			`[PAYMENT ORDER SERVICE] Payment QR code created: ${createQrResponse?.qrData}`
+		);
+
 		const createdPaymentOrder =
 			await this.paymentOrderRepository.createPaymentOrder({
 				orderId,
-				value,
+				value: createQrResponse.value,
 				qrData: createQrResponse.qrData,
 			});
 
@@ -110,28 +129,32 @@ export class PaymentOrderService {
 		notificationData: NotificationPaymentDto
 	): Promise<void> {
 		switch (notificationData.state) {
-		case PaymentNotificationStateEnum.FINISHED:
-			await this.finalizePayment(notificationData);
-			break;
-		case PaymentNotificationStateEnum.CONFIRMATION_REQUIRED:
-			logger.info('Confirmation payment required');
-			break;
-		case PaymentNotificationStateEnum.CANCELED:
-			await this.cancelPayment(notificationData);
-			break;
-		default:
-			throw new PaymentNotificationException(
-				`Invalid payment notification type ${notificationData.state}`
-			);
+			case PaymentNotificationStateEnum.FINISHED:
+				await this.finalizePayment(notificationData);
+				break;
+			case PaymentNotificationStateEnum.CONFIRMATION_REQUIRED:
+				logger.info('[PAYMENT ORDER SERVICE] Confirmation payment required');
+				break;
+			case PaymentNotificationStateEnum.CANCELED:
+				await this.cancelPayment(notificationData);
+				break;
+			default:
+				throw new PaymentNotificationException(
+					`Invalid payment notification type ${notificationData.state}`
+				);
 		}
 	}
 
 	async finalizePayment(
 		notificationData: NotificationPaymentDto
 	): Promise<void> {
-		logger.info(`Finished payment: ${JSON.stringify(notificationData)}`);
 		logger.info(
-			`Searching for payment order by id: ${notificationData.additional_info.external_reference}`
+			`[PAYMENT ORDER SERVICE] Finished payment: ${JSON.stringify(
+				notificationData
+			)}`
+		);
+		logger.info(
+			`[PAYMENT ORDER SERVICE] Searching for payment order by id: ${notificationData.additional_info.external_reference}`
 		);
 		let paymentOrder =
 			await this.paymentOrderRepository.getPaymentOrderByOrderId({
@@ -145,7 +168,11 @@ export class PaymentOrderService {
 		}
 
 		if (PaymentOrderStatusEnum.pending === paymentOrder.status) {
-			logger.info(`Found payment order: ${JSON.stringify(paymentOrder)}`);
+			logger.info(
+				`[PAYMENT ORDER SERVICE] Found payment order: ${JSON.stringify(
+					paymentOrder
+				)}`
+			);
 
 			const updatePaymentOrderParams: UpdatePaymentOrderParams = {
 				id: paymentOrder.id,
@@ -155,7 +182,9 @@ export class PaymentOrderService {
 			};
 
 			logger.info(
-				`Updating payment order: ${JSON.stringify(updatePaymentOrderParams)}`
+				`[PAYMENT ORDER SERVICE] Updating payment order: ${JSON.stringify(
+					updatePaymentOrderParams
+				)}`
 			);
 
 			paymentOrder = await this.paymentOrderRepository.updatePaymentOrder(
@@ -163,7 +192,9 @@ export class PaymentOrderService {
 			);
 
 			logger.info(
-				`Payment order updated successfully: ${JSON.stringify(paymentOrder)}`
+				`[PAYMENT ORDER SERVICE] Payment order updated successfully: ${JSON.stringify(
+					paymentOrder
+				)}`
 			);
 
 			const numberOfOrdersToday =
@@ -186,10 +217,14 @@ export class PaymentOrderService {
 	}
 
 	async cancelPayment(notificationData: NotificationPaymentDto): Promise<void> {
-		logger.info(`Cancelated payment: ${JSON.stringify(notificationData)}`);
+		logger.info(
+			`[PAYMENT ORDER SERVICE] Cancelated payment: ${JSON.stringify(
+				notificationData
+			)}`
+		);
 
 		logger.info(
-			`Searching for payment order by id: ${notificationData.additional_info.external_reference}`
+			`[PAYMENT ORDER SERVICE] Searching for payment order by id: ${notificationData.additional_info.external_reference}`
 		);
 
 		let paymentOrder =
@@ -204,14 +239,20 @@ export class PaymentOrderService {
 		}
 
 		if (PaymentOrderStatusEnum.pending === paymentOrder.status) {
-			logger.info(`Found payment order: ${JSON.stringify(paymentOrder)}`);
+			logger.info(
+				`[PAYMENT ORDER SERVICE] Found payment order: ${JSON.stringify(
+					paymentOrder
+				)}`
+			);
 			const updatePaymentOrderParams: UpdatePaymentOrderParams = {
 				id: paymentOrder.id,
 				status: PaymentOrderStatusEnum.cancelled,
 			};
 
 			logger.info(
-				`Updating payment order: ${JSON.stringify(updatePaymentOrderParams)}`
+				`[PAYMENT ORDER SERVICE] Updating payment order: ${JSON.stringify(
+					updatePaymentOrderParams
+				)}`
 			);
 
 			paymentOrder = await this.paymentOrderRepository.updatePaymentOrder(
@@ -219,7 +260,9 @@ export class PaymentOrderService {
 			);
 
 			logger.info(
-				`Payment order updated successfully: ${JSON.stringify(paymentOrder)}`
+				`[PAYMENT ORDER SERVICE] Payment order updated successfully: ${JSON.stringify(
+					paymentOrder
+				)}`
 			);
 
 			const updateOrder: UpdateOrderParams = {
@@ -227,11 +270,17 @@ export class PaymentOrderService {
 				status: OrderStatusEnum.canceled,
 			};
 
-			logger.info(`Updating order: ${JSON.stringify(updateOrder)}`);
+			logger.info(
+				`[PAYMENT ORDER SERVICE] Updating order: ${JSON.stringify(updateOrder)}`
+			);
 
 			const order = await this.orderService.updateOrder(updateOrder);
 
-			logger.info(`Order updated successfully: ${JSON.stringify(order)}`);
+			logger.info(
+				`[PAYMENT ORDER SERVICE] Order updated successfully: ${JSON.stringify(
+					order
+				)}`
+			);
 		} else {
 			throw new PaymentNotificationException(
 				`Error processing payment cancelation notification. Payment order ${notificationData.additional_info.external_reference} with status other than pending. Current status: ${paymentOrder.status}`

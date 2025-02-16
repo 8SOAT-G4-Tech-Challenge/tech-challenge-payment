@@ -22,7 +22,7 @@ export class OrderService {
 			);
 		}
 
-		logger.info('Fetching product from Order Microservice');
+		logger.info('[ORDER SERVICE] Fetching product from Order Microservice');
 
 		return this.orderApi.getProductById(id);
 	}
@@ -34,7 +34,7 @@ export class OrderService {
 			);
 		}
 
-		logger.info('Fetching order items from Order Microservice');
+		logger.info('[ORDER SERVICE] Fetching order items from Order Microservice');
 
 		return this.orderApi.getAllCartItemsByOrderId(orderId);
 	}
@@ -44,7 +44,7 @@ export class OrderService {
 			throw new InvalidOrderException('ID is required');
 		}
 
-		logger.info(`Fetching order via Order Microservice: ${id}`);
+		logger.info(`[ORDER SERVICE] Fetching order via Order Microservice: ${id}`);
 
 		return this.orderApi.getOrderCreatedById({ id });
 	}
@@ -57,38 +57,18 @@ export class OrderService {
 		}
 
 		logger.info(
-			`Updating order via Order Microservice: ${JSON.stringify(order)}`
+			`[ORDER SERVICE] Updating order via Order Microservice: ${JSON.stringify(
+				order
+			)}`
 		);
 
 		return this.orderApi.updateOrder(order);
 	}
 
-	async getOrderTotalValueById(id: string): Promise<number> {
-		if (!id) {
-			throw new InvalidOrderException(
-				"Can't return order total value without providing a valid ID"
-			);
-		}
-
-		const productItems = await this.getAllCartItemsByOrderId(id);
-
-		if (!productItems.length) {
-			throw new InvalidOrderException(
-				"Can't return order total value without order items"
-			);
-		}
-
-		const totalValue = productItems.reduce(
-			(acc, productItem) => acc + productItem.value,
-			0
-		);
-
-		logger.info(`Total value from order ${id} is ${totalValue}`);
-		return totalValue;
-	}
-
 	async getNumberOfValidOrdersToday(): Promise<number> {
-		logger.info('Getting number of valid orders today via Order Microservice');
+		logger.info(
+			'[ORDER SERVICE] Getting number of valid orders today via Order Microservice'
+		);
 		return this.orderApi.getNumberOfValidOrdersToday();
 	}
 }

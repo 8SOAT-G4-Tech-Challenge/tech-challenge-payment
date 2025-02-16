@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: api-tech-challenge-container
-          image: lucasaccurcio/tech-challenge-api:latest
+          image: lucasaccurcio/tech-challenge-payment-api:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3333

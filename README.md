@@ -1,9 +1,10 @@
-## FIAP Tech-Challenge 8SOAT - Grupo 04
+## FIAP Tech-Challenge 8SOAT - Grupo 04 - Microsserviço de Pagamentos
 
-### Microsserviço de Pagamentos
+### Introdução
 
-Este microsserviço faz parte de um sistema de controle de pedidos para uma lanchonete em expansão.
-Ele é responsável exclusivamente pelo processo de pagamento, garantindo uma integração eficiente e segura com a API do Mercado Pago para gerar QR Codes de pagamento.
+Este microsserviço faz parte de um sistema de controle de pedidos para uma lanchonete em expansão. Ele é responsável exclusivamente pelo processo de pagamento, garantindo uma integração eficiente e segura com a API do Mercado Pago para gerar QR Codes de pagamento.
+
+_Para visualizar a documentação geral do projeto, acesse este [repositório](https://github.com/8SOAT-G4-Tech-Challenge/tech-challenge-fiap-documentation)._
 
 ### Objetivo
 
@@ -16,21 +17,7 @@ A partir dos dados do pedido, este microsserviço:
 - Fornece o QR Code ao cliente para realizar o pagamento.
 - Acompanha o status do pagamento e atualiza o pedido conforme necessário.
 
-### Principais funcionalidades:
-
-- **Pagamento Integrado**: Facilitar o pagamento dos pedidos via QRCode do Mercado Pago.
-
-### Requerimentos
-
-- Node versão 20
-- [Docker](https://docs.docker.com/get-docker/)
-- Docker Compose
-
-### Execução
-
-Para executar a aplicação siga a seguinte [documentação](docs/INSTALACAO.md), que possui todos os passos para iniciar e executar a aplicação localmente.
-
-### Participantes do Projeto
+### Participantes
 
 - Amanda Maschio - RM 357734
 - Jackson Antunes - RM357311

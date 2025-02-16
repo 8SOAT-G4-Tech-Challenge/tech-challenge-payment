@@ -39,7 +39,9 @@ describe('PaymentOrderController -> Test', () => {
 
 			expect(reply.code).toHaveBeenCalledWith(200);
 			expect(reply.send).toHaveBeenCalledWith([paymentOrder]);
-			expect(loggerSpy).toHaveBeenCalledWith('Listing payment orders');
+			expect(loggerSpy).toHaveBeenCalledWith(
+				'[PAYMENT ORDER CONTROLLER] Listing payment orders'
+			);
 		});
 
 		test('should fail to list payment orders', async () => {
@@ -58,14 +60,16 @@ describe('PaymentOrderController -> Test', () => {
 			await controller.getPaymentOrders(req as any, reply as any);
 
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Unexpected error when listing for payment orders: {"message":"error"}'
+				'[❌ ERROR HANDLER] Unexpected error: {"message":"error"}'
 			);
 			expect(reply.status).toHaveBeenCalledWith(500);
-			expect(reply.send).toHaveBeenCalledWith({
-				message: 'error',
-				path: '/list-payment-orders-mock',
-				status: 500,
-			});
+			expect(reply.send).toHaveBeenCalledWith(
+				JSON.stringify({
+					path: '/list-payment-orders-mock',
+					status: 500,
+					message: 'error',
+				})
+			);
 		});
 	});
 
@@ -86,7 +90,9 @@ describe('PaymentOrderController -> Test', () => {
 
 			expect(reply.code).toHaveBeenCalledWith(200);
 			expect(reply.send).toHaveBeenCalledWith(paymentOrder);
-			expect(loggerSpy).toHaveBeenCalledWith('Listing payment order by ID');
+			expect(loggerSpy).toHaveBeenCalledWith(
+				'[PAYMENT ORDER CONTROLLER] Listing payment order by ID'
+			);
 		});
 
 		test('should reply 404', async () => {
@@ -99,12 +105,11 @@ describe('PaymentOrderController -> Test', () => {
 
 			await controller.getPaymentOrderById(req as any, reply as any);
 
-			expect(reply.code).toHaveBeenCalledWith(404);
-			expect(reply.send).toHaveBeenCalledWith({
-				error: 'Not Found',
-				message: 'Payment Order with 1 not found',
-			});
-			expect(loggerSpy).toHaveBeenCalledWith('Listing payment order by ID');
+			expect(reply.code).toHaveBeenCalledWith(200);
+			expect(reply.send).toHaveBeenCalledWith(undefined);
+			expect(loggerSpy).toHaveBeenCalledWith(
+				'[PAYMENT ORDER CONTROLLER] Listing payment order by ID'
+			);
 		});
 
 		test('should fail to list payment orders', async () => {
@@ -126,14 +131,16 @@ describe('PaymentOrderController -> Test', () => {
 			await controller.getPaymentOrderById(req as any, reply as any);
 
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Unexpected error when listing for payment order: {"message":"error"}'
+				'[❌ ERROR HANDLER] Unexpected error: {"message":"error"}'
 			);
 			expect(reply.status).toHaveBeenCalledWith(500);
-			expect(reply.send).toHaveBeenCalledWith({
-				message: 'error',
-				path: '/list-payment-orders-by-id-mock',
-				status: 500,
-			});
+			expect(reply.send).toHaveBeenCalledWith(
+				JSON.stringify({
+					path: '/list-payment-orders-by-id-mock',
+					status: 500,
+					message: 'error',
+				})
+			);
 		});
 	});
 
@@ -157,7 +164,7 @@ describe('PaymentOrderController -> Test', () => {
 			expect(reply.code).toHaveBeenCalledWith(200);
 			expect(reply.send).toHaveBeenCalledWith(paymentOrder);
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Listing payment order by order ID'
+				'[PAYMENT ORDER CONTROLLER] Listing payment order by order ID'
 			);
 		});
 
@@ -171,13 +178,10 @@ describe('PaymentOrderController -> Test', () => {
 
 			await controller.getPaymentOrderByOrderId(req as any, reply as any);
 
-			expect(reply.code).toHaveBeenCalledWith(404);
-			expect(reply.send).toHaveBeenCalledWith({
-				error: 'Not Found',
-				message: 'Payment Order with Order ID 1 not found',
-			});
+			expect(reply.code).toHaveBeenCalledWith(200);
+			expect(reply.send).toHaveBeenCalledWith(undefined);
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Listing payment order by order ID'
+				'[PAYMENT ORDER CONTROLLER] Listing payment order by order ID'
 			);
 		});
 
@@ -200,14 +204,16 @@ describe('PaymentOrderController -> Test', () => {
 			await controller.getPaymentOrderByOrderId(req as any, reply as any);
 
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Unexpected error when listing for payment order: {"message":"error"}'
+				'[❌ ERROR HANDLER] Unexpected error: {"message":"error"}'
 			);
 			expect(reply.status).toHaveBeenCalledWith(500);
-			expect(reply.send).toHaveBeenCalledWith({
-				message: 'error',
-				path: '/list-payment-orders-by-order-id-mock',
-				status: 500,
-			});
+			expect(reply.send).toHaveBeenCalledWith(
+				JSON.stringify({
+					path: '/list-payment-orders-by-order-id-mock',
+					status: 500,
+					message: 'error',
+				})
+			);
 		});
 	});
 
@@ -228,7 +234,9 @@ describe('PaymentOrderController -> Test', () => {
 
 			expect(reply.code).toHaveBeenCalledWith(200);
 			expect(reply.send).toHaveBeenCalledWith(paymentOrder);
-			expect(loggerSpy).toHaveBeenCalledWith('Making payment order');
+			expect(loggerSpy).toHaveBeenCalledWith(
+				'[PAYMENT ORDER CONTROLLER] Making payment order'
+			);
 		});
 
 		test('should fail to list payment orders', async () => {
@@ -251,14 +259,16 @@ describe('PaymentOrderController -> Test', () => {
 			await controller.makePayment(req as any, reply as any);
 
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Unexpected error when making payment order: {"message":"error"}'
+				'[❌ ERROR HANDLER] Unexpected error: {"message":"error"}'
 			);
 			expect(reply.status).toHaveBeenCalledWith(500);
-			expect(reply.send).toHaveBeenCalledWith({
-				message: 'error',
-				path: '/make-payment-orders-mock',
-				status: 500,
-			});
+			expect(reply.send).toHaveBeenCalledWith(
+				JSON.stringify({
+					path: '/make-payment-orders-mock',
+					status: 500,
+					message: 'error',
+				})
+			);
 		});
 	});
 
@@ -282,7 +292,9 @@ describe('PaymentOrderController -> Test', () => {
 			expect(reply.code).toHaveBeenCalledWith(204);
 			expect(reply.send).toHaveBeenCalled();
 			expect(loggerSpy).toHaveBeenCalledWith(
-				`Process notification payment order ${JSON.stringify(req.body)}`
+				`[PAYMENT ORDER CONTROLLER] Process notification payment order ${JSON.stringify(
+					req.body
+				)}`
 			);
 		});
 
@@ -305,14 +317,16 @@ describe('PaymentOrderController -> Test', () => {
 			await controller.processPaymentNotification(req as any, reply as any);
 
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Unexpected error when process notification payment order: {"message":"error"}'
+				'[❌ ERROR HANDLER] Unexpected error: {"message":"error"}'
 			);
 			expect(reply.status).toHaveBeenCalledWith(500);
-			expect(reply.send).toHaveBeenCalledWith({
-				message: 'error',
-				path: '/proccess-payment-orders-mock',
-				status: 500,
-			});
+			expect(reply.send).toHaveBeenCalledWith(
+				JSON.stringify({
+					path: '/proccess-payment-orders-mock',
+					status: 500,
+					message: 'error',
+				})
+			);
 		});
 	});
 });

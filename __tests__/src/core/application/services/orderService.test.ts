@@ -3,7 +3,6 @@ import { InvalidProductException } from '@src/core/application/exceptions/invali
 import { OrderService } from '@src/core/application/services/orderService';
 import logger from '@src/core/common/logger';
 import { OrderMockBuilder } from '@tests/mocks/order.mock-builder';
-import { ProductMockBuilder } from '@tests/mocks/product.mock-builder';
 
 describe('OrderService -> Test', () => {
 	let service: OrderService;
@@ -37,7 +36,7 @@ describe('OrderService -> Test', () => {
 
 			expect(orderApiAdapter.getProductById).toHaveBeenCalledWith(order.id);
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Fetching product from Order Microservice'
+				'[ORDER SERVICE] Fetching product from Order Microservice'
 			);
 			expect(response).toEqual(order);
 		});
@@ -48,10 +47,14 @@ describe('OrderService -> Test', () => {
 				await service.getProductById();
 			};
 
-			expect(rejectedFunction()).rejects.toThrow(InvalidProductException);
-			expect(rejectedFunction()).rejects.toThrow(
-				'Must provide an product id to get product'
-			);
+			try {
+				await rejectedFunction();
+				fail('Expected InvalidProductException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(InvalidProductException);
+				expect(error.message).toBe('Must provide an product id to get product');
+				expect(error.statusCode).toBe(400);
+			}
 		});
 	});
 
@@ -71,7 +74,7 @@ describe('OrderService -> Test', () => {
 				order.id
 			);
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Fetching order items from Order Microservice'
+				'[ORDER SERVICE] Fetching order items from Order Microservice'
 			);
 			expect(response).toEqual([order]);
 		});
@@ -82,10 +85,16 @@ describe('OrderService -> Test', () => {
 				await service.getAllCartItemsByOrderId();
 			};
 
-			expect(rejectedFunction()).rejects.toThrow(InvalidOrderException);
-			expect(rejectedFunction()).rejects.toThrow(
-				'Must provide an order id to get order items'
-			);
+			try {
+				await rejectedFunction();
+				fail('Expected InvalidOrderException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(InvalidOrderException);
+				expect(error.message).toBe(
+					'Must provide an order id to get order items'
+				);
+				expect(error.statusCode).toBe(400);
+			}
 		});
 	});
 
@@ -105,7 +114,7 @@ describe('OrderService -> Test', () => {
 				id: order.id,
 			});
 			expect(loggerSpy).toHaveBeenCalledWith(
-				`Fetching order via Order Microservice: ${order.id}`
+				`[ORDER SERVICE] Fetching order via Order Microservice: ${order.id}`
 			);
 			expect(response).toEqual(order);
 		});
@@ -115,8 +124,14 @@ describe('OrderService -> Test', () => {
 				await service.getOrderCreatedById({});
 			};
 
-			expect(rejectedFunction()).rejects.toThrow(InvalidOrderException);
-			expect(rejectedFunction()).rejects.toThrow('ID is required');
+			try {
+				await rejectedFunction();
+				fail('Expected InvalidOrderException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(InvalidOrderException);
+				expect(error.message).toBe('ID is required');
+				expect(error.statusCode).toBe(400);
+			}
 		});
 	});
 
@@ -133,7 +148,9 @@ describe('OrderService -> Test', () => {
 
 			expect(orderApiAdapter.updateOrder).toHaveBeenCalledWith(order);
 			expect(loggerSpy).toHaveBeenCalledWith(
-				`Updating order via Order Microservice: ${JSON.stringify(order)}`
+				`[ORDER SERVICE] Updating order via Order Microservice: ${JSON.stringify(
+					order
+				)}`
 			);
 			expect(response).toEqual(order);
 		});
@@ -143,62 +160,16 @@ describe('OrderService -> Test', () => {
 				await service.updateOrder({});
 			};
 
-			expect(rejectedFunction()).rejects.toThrow(InvalidOrderException);
-			expect(rejectedFunction()).rejects.toThrow(
-				"Can't update order without providing an ID"
-			);
-		});
-	});
-
-	describe('getOrderTotalValueById', () => {
-		test('should order total value by ID', async () => {
-			const loggerSpy = jest.spyOn(logger, 'info');
-
-			const order = new OrderMockBuilder().withDefaultValues().build();
-			const product = new ProductMockBuilder().withDefaultValues().build();
-
-			(orderApiAdapter.getAllCartItemsByOrderId as jest.Mock).mockResolvedValue(
-				[product]
-			);
-
-			const response = await service.getOrderTotalValueById(order.id);
-
-			expect(orderApiAdapter.getAllCartItemsByOrderId).toHaveBeenCalledWith(
-				order.id
-			);
-			expect(loggerSpy).toHaveBeenCalledWith(
-				`Total value from order ${order.id} is 99.99`
-			);
-			expect(response).toEqual(99.99);
-		});
-
-		test('should throw InvalidOrderException', async () => {
-			const rejectedFunction = async () => {
-				// @ts-expect-error typescript
-				await service.getOrderTotalValueById();
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(InvalidOrderException);
-			expect(rejectedFunction()).rejects.toThrow(
-				"Can't return order total value without providing a valid ID"
-			);
-		});
-
-		test('should throw invalid order value InvalidOrderException', async () => {
-			const order = new OrderMockBuilder().withDefaultValues().build();
-
-			(orderApiAdapter.getAllCartItemsByOrderId as jest.Mock).mockResolvedValue(
-				[]
-			);
-
-			const rejectedFunction = async () => {
-				await service.getOrderTotalValueById(order.id);
-			};
-
-			expect(rejectedFunction()).rejects.toThrow(InvalidOrderException);
-			expect(rejectedFunction()).rejects.toThrow(
-				"Can't return order total value without order items"
-			);
+			try {
+				await rejectedFunction();
+				fail('Expected InvalidOrderException but no error was thrown');
+			} catch (error) {
+				expect(error).toBeInstanceOf(InvalidOrderException);
+				expect(error.message).toBe(
+					"Can't update order without providing an ID"
+				);
+				expect(error.statusCode).toBe(400);
+			}
 		});
 	});
 
@@ -214,7 +185,7 @@ describe('OrderService -> Test', () => {
 
 			expect(orderApiAdapter.getNumberOfValidOrdersToday).toHaveBeenCalled();
 			expect(loggerSpy).toHaveBeenCalledWith(
-				'Getting number of valid orders today via Order Microservice'
+				'[ORDER SERVICE] Getting number of valid orders today via Order Microservice'
 			);
 		});
 	});

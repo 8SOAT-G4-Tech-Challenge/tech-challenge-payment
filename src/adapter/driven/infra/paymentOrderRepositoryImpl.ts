@@ -62,12 +62,15 @@ export class PaymentOrderRepositoryImpl implements PaymentOrderRepository {
 		};
 	}
 
-	async updatePaymentOrder(
-		updatePaymentOrderParams: UpdatePaymentOrderParams
-	): Promise<PaymentOrder> {
+	async updatePaymentOrder({
+		id,
+		status,
+		paidAt,
+		value,
+	}: UpdatePaymentOrderParams): Promise<PaymentOrder> {
 		const updatedPaymentOrder = await prisma.paymentOrder.update({
-			where: { id: updatePaymentOrderParams.id },
-			data: updatePaymentOrderParams,
+			where: { id },
+			data: { status, paidAt, value },
 		});
 
 		return {

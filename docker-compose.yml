@@ -1,58 +1,4 @@
 services:
-  mongodb:
-    container_name: tech-challenge-payment-mongo
-    image: mongo
-    ports:
-      - '27017:27017'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: tech-challenge
-      MONGO_INITDB_ROOT_PASSWORD: docker
-    networks:
-      - tech-challenge-payment-network
-    volumes:
-      - ./mongo-keyfile:/data/mongo-keyfile
-    command: [
-        '/bin/bash',
-        '-c',
-        "
-        chmod 600 /data/mongo-keyfile && \
-        chown 999:999 /data/mongo-keyfile && \
-        mongod --replSet rs0 --bind_ip_all --keyFile /data/mongo-keyfile
-        ",
-      ]
-    healthcheck:
-      test: mongosh --username tech-challenge --password docker --authenticationDatabase admin --eval "db.runCommand('ping').ok"
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  mongo-init-replica:
-    image: mongo
-    container_name: tech-challenge-payment-mongo-init
-    depends_on:
-      - mongodb
-    networks:
-      - tech-challenge-payment-network
-    restart: 'no'
-    entrypoint: [
-        'bash',
-        '-c',
-        '
-        echo ''Aguardando MongoDB iniciar...'';
-        until mongosh --host mongodb --eval ''db.runCommand({ ping: 1 })'' > /dev/null 2>&1; do
-        sleep 2;
-        done;
-        echo ''MongoDB pronto. Iniciando Replica Set...'';
-        mongosh --host mongodb --eval ''
-        rs.initiate({
-        _id: "rs0",
-        members: [{ _id: 0, host: "mongodb:27017" }]
-        })
-        '';
-        echo ''Replica Set iniciado com sucesso!'';
-        ',
-      ]
-
   app:
     container_name: tech-challenge-payment-api
     build:
@@ -60,17 +6,17 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3333:3333'
-      - '5555:5555'
+      - '5557:5557'
     env_file: .env
-    depends_on:
-      mongo-init-replica:
-        condition: service_completed_successfully
     environment:
-      DATABASE_URL: 'mongodb://tech-challenge:docker@mongodb:27017/tech-challenge?authSource=admin&replicaSet=rs0'
+      DATABASE_URL: 'mongodb+srv://mongodb:Senha%21123456tsdgdhh%24fgddfdffsvds@tc-payment-cluster.r5qwl.mongodb.net/tc-payment-db'
       API_PORT: 3333
     networks:
       - tech-challenge-payment-network
+      - tech-challenge-global
 
 networks:
   tech-challenge-payment-network:
     driver: bridge
+  tech-challenge-global:
+    external: true
